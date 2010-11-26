@@ -1,0 +1,114 @@
+#!/bin/bash
+# File: repo-update
+# Description: repo-update is a supplement to repo-add, in that it deletes any
+# older found packages and automatically updates the repository database.
+
+# Copyright (c) 2010, Ben Morgan <uv.sound@gmail.com>
+# 
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+version="1.4 (26. November 2010)"
+
+ERR_CMD=1
+ERR_REPO=2
+ERR_PKG=4
+ERR_CONFIG=8
+
+function help() {
+    echo "repo-update version $version"
+    echo ""
+    echo "Usage:"
+    echo "    repo-update <package>"
+    echo "    where <package> is the name of the package (not the filename)"
+    echo ""
+}
+
+function load_config() {
+    repo_dir=""
+    repo_db=""
+    if [ -f $HOME/.repo-update ]; then
+        . $HOME/.repo-update
+    else
+        echo "error (config): config file $HOME/.repo-update missing."
+        echo 'creating config file with default values...'
+        echo 'repo_dir="$HOME/packages"' > $HOME/.repo-update
+        echo 'repo_db="local.db.tar.gz"' >> $HOME/.repo-update
+        echo 'please edit the configuration file before using repo-update again.'
+        exit $ERR_CONFIG
+    fi
+
+    if [ -z $repo_dir ]; then
+        echo 'error (config): repo_dir variable missing.'
+        die=true
+    fi
+    if [ -z $repo_db ]; then
+        echo 'error (config): repo_db variable missing.'
+        die=true
+    fi
+    [[ $die ]] && exit $ERR_CONFIG
+}
+
+function update() {
+    # $1 is the database filename
+    # $2 is the package name
+    if [ ! -d $repo_dir ]; then
+        echo "error: directory $repo_dir does not exist."
+        exit $ERR_REPO
+    else
+        cd $repo_dir
+    fi
+    if [ ! -f $1 ]; then
+        echo "error: default repository database '$1' does not exist."
+        exit $ERR_REPO
+    fi
+    
+    # package filename format
+    pkgext="(gz|bz2|xz)"
+    strict="^$2-[a-z0-9._]+-[0-9]+-(any|i686|x86_64).pkg.tar.$pkgext$"
+    lenient="^$2-.+-[0-9]+-(any|i686|x86_64).pkg.tar.$pkgext$"
+    list=($(ls -1v | egrep "$strict"))
+    amount=${#list[*]}
+    last=$(($amount -1))
+
+    echo "database is $1"
+    echo "found $amount packages"
+    if [ $amount == 0 ]; then
+        echo "error: package $2 does not exist."
+        exit $ERR_PKG
+    elif [ $amount == 1 ]; then
+        echo "adding ${list[$last]}"
+        repo-add $1 ${list[$last]}
+    elif [[ $amount -ge 2 ]]; then
+        for i in $(seq 0 $(($amount - 2))); do
+            echo "deleting ${list[$i]}"
+            rm ${list[$i]}
+        done
+        echo "adding ${list[$last]}"
+        repo-add $1 ${list[$last]}
+    fi
+}
+
+load_config
+if [ $# == 1 ]; then
+    case $1 in
+        -h|--help) help
+                   exit;;
+               -*) help
+                   exit $ERR_CMD;;
+                *) update $repo_db $1;;
+    esac
+else
+    help
+    exit $ERR_CMD
+fi
+
