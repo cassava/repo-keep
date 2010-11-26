@@ -18,6 +18,7 @@ source=(https://github.com/downloads/cassava/$pkgname/$pkgname-$pkgver.tar.gz)
 noextract=()
 
 build() {
-  mkdir -p $pkgdir/usr/bin
-  install -m 0755 $srcdir/repo-update $pkgdir/usr/bin/
+  install -d $pkgdir/usr/bin
+  install -m 0755 $srcdir/$pkgname-$pkgver/repo-update $pkgdir/usr/bin/
 }
+md5sums=('0094fb543de01a96c5d58f2f21331835')
