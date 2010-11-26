@@ -44,7 +44,8 @@ is mostly used in the following way (which is an example):
     ==> Creating updated database file 'local.db.tar.gz'
 
 
-### `.repo-update` Configuration File Example
+### Repo-Update Configuration File Example
+The configuration file is located at `~/.repo-update`.
 
     repo_dir="/home/abs/packages"
     repo_db="local.db.tar.gz"

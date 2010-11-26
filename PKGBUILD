@@ -1,20 +1,20 @@
-# Contributor: Ben Morgan <benm.morgan@gmail.com>
+# Contributor: Ben Morgan <uv.sound@gmail.com>
 pkgname=repo-update
 pkgver=1.4
 pkgrel=1
 pkgdesc="repo-update is a supplement to repo-add which simplifies updating local repositories"
 arch=('any')
-url=""
+url="https://github.com/cassava/repo-update"
 license=('ISC')
 groups=()
-depends=()
+depends=(pacman)
 makedepends=()
 provides=()
 conflicts=()
 replaces=()
 backup=()
 install=
-source=($pkgname)
+source=(https://github.com/downloads/cassava/$pkgname/$pkgname-$pkgver.tar.gz)
 noextract=()
 
 build() {
