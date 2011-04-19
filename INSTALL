@@ -3,10 +3,13 @@ REPO-UPDATE INSTALLATION INSTRUCTIONS
 
 ### Dependancies
   - This program only makes sense on a system which makes use of the
-    Arch Build System (ABS).
+    Arch Build System (ABS). If you are using ABS, use the PKGBUILD
+    then and make yourself a package! ;)
 
 ### Installation
-  - Put `repo-update` into `/usr/bin/` and you're good.
+  - Put `repo-update` into `/usr/bin/`
+  - Put completion scripts into appropriate directories
+    e.g.: `zsh-completion` into `/usr/share/zsh/site-functions/` as `_repo-update`
 
 ### Post-Installation
   - Run it for the first time, it will create a user configuration file, which

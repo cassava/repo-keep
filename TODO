@@ -1,0 +1,15 @@
+TODO: REPO-UPDATE
+=======================================================================
+
+  1. Create a generic configuration file parser in the style that
+     pacman uses for it's config file: /etc/pacman.conf
+    
+  2. Allow for multiple repositories (I'm going to make this depend
+     on #1, for simplicity).
+  
+  3. Allow for automatic scanning of what has been updated to refresh the
+     repository.
+  
+  4. Allow for scanning the repository to see for which packages there are
+     newer versions in the AUR. (This could be complicated, but would be
+     very very useful.)

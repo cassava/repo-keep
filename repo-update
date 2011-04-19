@@ -1,9 +1,9 @@
 #!/bin/bash
 # File: repo-update
-# Description: repo-update is a supplement to repo-add, in that it deletes any
+# Desc: repo-update is a supplement to repo-add, in that it deletes any
 # older found packages and automatically updates the repository database.
 
-# Copyright (c) 2010, Ben Morgan <uv.sound@gmail.com>
+# Copyright (c) 2010–2011 Ben Morgan <neembi@googlemail.com>
 # 
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -17,7 +17,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-version="1.4 (26. November 2010)"
+version="1.4.1 (19. April 2011)"
 
 ERR_CMD=1
 ERR_REPO=2
