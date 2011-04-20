@@ -24,3 +24,4 @@ package() {
   install -Dm644 zsh-completion $pkgdir/usr/share/zsh/site-functions/_repo-update
 }
 
+md5sums=('2cf63cb355bccbe6eda52cf79dbe7b24')
