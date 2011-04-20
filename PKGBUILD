@@ -17,7 +17,7 @@ package() {
 
   # Install the license and other documentation
   install -Dm644 LICENSE $pkgdir/usr/share/licenses/repo-update/LICENSE
-  install -D $pkgdir/usr/share/doc/repo-update
+  install -d $pkgdir/usr/share/doc/repo-update
   install -m644 TODO CHANGES $pkgdir/usr/share/doc/repo-update/
 
   # Install the completion files

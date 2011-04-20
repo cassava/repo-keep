@@ -1,7 +1,7 @@
 CHANGES: REPO-UPDATE                                              1.4
 =======================================================================
 
-1.4.1 (19. April 2011)
+1.4.1 (20. April 2011)
 This release just adds a Zsh completion script for repo-update,
 and does not change the functionality of repo-update at all.
 
