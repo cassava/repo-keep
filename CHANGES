@@ -1,6 +1,13 @@
-CHANGES: REPO-UPDATE                                              1.4
+CHANGES: REPO                                                      2.0
 =======================================================================
 
+2.0   (X. September 2011)
+This release is a complete rewrite of repo-update. The naming has been
+changed to just repo, the programming language has been changed to C,
+and many improvements have been made to the concept (hence the name
+change).
+
+_______________________________
 1.4.1 (20. April 2011)
 This release just adds a Zsh completion script for repo-update,
 and does not change the functionality of repo-update at all.

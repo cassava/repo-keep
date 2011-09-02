@@ -16,9 +16,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "repo.h"
+#include "common.h"
+#include "config.h"
+#include "update.h"
+#include "sync.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <argp.h>
 
@@ -26,44 +30,38 @@
 const char *argp_program_version = REPO_VERSION_STRING;
 const char *argp_program_bug_address = "<neembi@googlemail.com>";
 
-static char args_doc[] = "<COMMAND> [PACKAGES ...]";
+static char args_doc[] = "<add|remove|update|sync> [PACKAGES ...]";
 static char doc[] =
     "Manage local pacman repositories.\n"
     "\n"
     "Commands available:\n"
-    "  sync             Compare packages in the database to AUR for new versions.\n"
     "  add <pkgname>    Add the package(s) with <pkgname> to the database by\n"
     "                   finding in the same directory of the database the latest\n"
     "                   file for that package (by file date and by version number),\n"
     "                   deleting the others, and updating the database.\n"
-    "  update           Same as add, except scan and add changed packages.\n"
     "  remove <pkgname> Remove the package with <pkgname> from the database, by\n"
     "                   removing the entry from the database and deleting the\n"
     "                   files.\n"
+    "  sync             Compare packages in the database to AUR for new versions.\n"
+    "  update           Same as add, except scan and add changed packages.\n"
     "\n"
     "NOTE: In all of these cases, <pkgname> is the name of the package, without\n"
     "anything else. For example: pacman, and not pacman-3.5.3-1-i386.pkg.tar.xz";
 
 static struct argp_option options[] = {
-    {"soft",    's', 0,        0, "Don't delete any files (n/a for: sync)"},
-    {"natural", 'n', 0,        0, "Don't take package creation time into account"},
-    {"quiet",   'q', 0,        0, "Don't produce unnecessary output"},
-    {"verbose", 'v', 0,        0, "Tell me more, tell me more!"},
+  // long       key  arg       ?  description
+    {"soft",    's', NULL,     0, "Don't delete any files (n/a for: sync)"},
+    {"natural", 'n', NULL,     0, "Don't take package creation time into account"},
+    {"quiet",   'q', NULL,     0, "Don't produce unnecessary output"},
+    {"verbose", 'v', NULL,     0, "Tell me more, tell me more!"},
     {"config",  'c', "CONFIG", 0, "Alternate configuration file"},
-    { 0 }
+    { NULL }
 };
 
-struct arguments
-{
-    int soft;               // don't delete files
-    int natural;            // don't compare file creation times
-    int quiet;              // don't print any unnecessary output
-    int verbose;            // tell me more!
-    char *config;           // configuration file where next two values are stored
-    char *db_name;          // config::database name
-    char *db_path;          // config::path to db location (with packages)
-    char *command;          // command to execute (one of: sync, update, add, remove)
-    char *args[ARG_BUFFER]; // holds pointers to package arguments
+static struct config_map configuration[] = {
+    { "db_name", NULL },
+    { "db_path", NULL },
+    { NULL, NULL }
 };
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -96,12 +94,11 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
                 else
                     argp_usage(state);
             } else {
-                arguments->args[state->arg_num-1] = arg;
-                // TODO: is this necessary?
-                arguments->args[state->arg_num] = NULL;
+                arguments->argv[state->arg_num-1] = arg;
             }
             break;
         case ARGP_KEY_END:
+            arguments->argc = state->arg_num;
             // Make sure that the amount of arguments is correct
             if ( (state->arg_num < 1) ||
                  ( (!strcmp(arguments->command, "update")
@@ -118,24 +115,70 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-static struct argp argp = {options, parse_opt, args_doc, doc};
+static char *tildestr(char *line)
+{
+    char *home, *s;
+    
+    if (*line == '~') {
+        home = getenv("HOME");
+        asprintf(&s, "%s%s", home, ++line);
+        return s;
+    }
+    return line;
+}
+
 
 int main(int argc, char **argv)
 {
     struct arguments arguments;
+    struct argp argp = {options, parse_opt, args_doc, doc};
+    int i;
     
     // set default values
     arguments.soft = 0;
     arguments.natural = 0;
     arguments.quiet = 0;
     arguments.verbose = 0;
-    arguments.config = CONFIG_PATH;
+    arguments.config = tildestr(CONFIG_PATH);
 
     // parse the command line arguments
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
     // read the configuration file
-    //config_parse(arguments->config);
+    config_parse(arguments.config, configuration, CONFIG_FAIL);
+    for (i = 0; i < CONFIG_LEN; i++)
+        if (configuration[i].value == NULL) {
+            fprintf(stderr, "error: required value for key '%s' missing from configuration fileu\n",
+                    configuration[i].key);
+            exit(ERROR_CONFIG);
+        }
+    arguments.db_name = configuration[0].value;
+    arguments.db_path = configuration[1].value;
+
+    // perform the given action by switching on first character
+    switch (*arguments.command) {
+        case 'a':
+            repo_add(&arguments);
+            break;
+        case 'u':
+            repo_update(&arguments);
+            break;
+        case 's':
+            repo_sync(&arguments);
+            break;
+        case 'r':
+            repo_remove(&arguments);
+            break;
+        default:
+            // should never happen
+            fprintf(stderr, "error: this is an error that should never happen!\n");
+            exit(ERROR_UNDEF);
+    }
+
+    // finally
+    free(arguments.config);
+    free(arguments.db_name);
+    free(arguments.db_path);
 
     return 0;
 }

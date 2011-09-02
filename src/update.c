@@ -1,5 +1,5 @@
 /*
- * update.h
+ * update.c
  * Includes the code for the commands 'add', 'remove' and 'update'.
  * 
  * Copyright (c) 2010–2011 Ben Morgan <neembi@googlemail.com>
@@ -17,14 +17,21 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef UPDATE_H
-#define UPDATE_H
-
-#include "common.h"
+#include "update.h"
 
 
-void repo_update(struct arguments *);
-void repo_add(struct arguments *);
-void repo_remove(struct arguments *);
+void repo_update(struct arguments *arguments)
+{
+    puts("repo_update()");
+}
 
-#endif // UPDATE_H
+void repo_add(struct arguments *arguments)
+{
+    puts("repo_add()");
+}
+
+void repo_remove(struct arguments *arguments)
+{
+    puts("repo_remove()");
+}
+

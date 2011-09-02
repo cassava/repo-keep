@@ -1,7 +1,6 @@
 /*
- * update.h
- * Includes the code for the commands 'add', 'remove' and 'update'.
- * 
+ * sync.h
+ *
  * Copyright (c) 2010–2011 Ben Morgan <neembi@googlemail.com>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -17,14 +16,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef UPDATE_H
-#define UPDATE_H
-
-#include "common.h"
+#include "sync.h"
 
 
-void repo_update(struct arguments *);
-void repo_add(struct arguments *);
-void repo_remove(struct arguments *);
+void repo_sync(struct arguments *arguments)
+{
+    puts("repo_sync()");
+}
 
-#endif // UPDATE_H

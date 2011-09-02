@@ -1,5 +1,5 @@
 /*
- * repo.h
+ * common.h
  * 
  * Copyright (c) 2010–2011 Ben Morgan <neembi@googlemail.com>
  * 
@@ -16,8 +16,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef REPO_H
-#define REPO_H
+#ifndef COMMON_H
+#define COMMON_H
+
+#define _GNU_SOURCE  // for asprintf
+#include <stdio.h>
 
 #define REPO_VERSION    "2.0"
 #define REPO_DATE       "1. September 2011"
@@ -27,11 +30,28 @@
 #define ERROR_REPO      2
 #define ERROR_PKG       4
 #define ERROR_CONFIG    8
+#define ERROR_UNDEF     128
 
 #define ARG_BUFFER      1024
 #define CONFIG_PATH     "~/.repo.conf"
+#define CONFIG_FAIL     0
+#define CONFIG_LEN      2
 
 #define PKG_STRICT_EXT  "-[a-z0-9._]+-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)"
 #define PKG_LENIENT_EXT "-.+-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)"
 
-#endif // REPO_H
+
+struct arguments {
+    int soft;               // don't delete files
+    int natural;            // don't compare file creation times
+    int quiet;              // don't print any unnecessary output
+    int verbose;            // tell me more!
+    char *config;           // configuration file where next two values are stored
+    char *db_name;          // config::database name
+    char *db_path;          // config::path to db location (with packages)
+    char *command;          // command to execute (one of: sync, update, add, remove)
+    char *argv[ARG_BUFFER]; // holds pointers to package arguments
+    int argc;
+};
+
+#endif // COMMON_H
