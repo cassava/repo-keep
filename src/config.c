@@ -62,7 +62,7 @@ int config_parse(const char *path, struct config_map *tab, int fail)
                 fprintf(stderr, "error: invalid line in configuration file '%s':\n"
                                 "       %s", path, line);
                 if (fail)
-                    return -1;
+                    return 1;
                 else
                     continue;
             }
@@ -80,11 +80,12 @@ int config_parse(const char *path, struct config_map *tab, int fail)
                 fprintf(stderr, "error: invalid key in configuration file '%s':\n"
                                 "       %s\n", path, line);
                 if (fail)
-                    return -1;
+                    return 2;
                 else
                     continue;
             }
             
+            // am not checking if malloc returns NULL because in this case moot.
             map->value = (char *) malloc((strlen(value)+1) * sizeof (char));
             strcpy(map->value, value);
         }

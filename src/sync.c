@@ -1,5 +1,5 @@
 /*
- * sync.h
+ * sync.c
  *
  * Copyright (c) 2010–2011 Ben Morgan <neembi@googlemail.com>
  * 
@@ -17,10 +17,12 @@
  */
 
 #include "common.h"
+#include <stdio.h>
 
 
 void repo_sync(struct arguments *arguments)
 {
+    repo_check(arguments);
     puts("repo_sync()");
 }
 

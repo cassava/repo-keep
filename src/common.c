@@ -1,7 +1,6 @@
 /*
- * update.c
- * Includes the code for the commands 'add', 'remove' and 'update'.
- * 
+ * common.c 
+ *
  * Copyright (c) 2010–2011 Ben Morgan <neembi@googlemail.com>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -19,23 +18,35 @@
 
 #include "common.h"
 #include <stdio.h>
+#include <string.h>
 
-
-void repo_update(struct arguments *arguments)
+int file_exists(const char *file)
 {
-    repo_check(arguments);
-    puts("repo_update()");
+    FILE *in = fopen(file, "r");
+    if (in == NULL)
+        return 0;
+    fclose(in);
+    return 1;
 }
 
-void repo_add(struct arguments *arguments)
+/* concat: concatenates two strings.
+ * Note: remember to free the memory when done.
+ */
+char *concat(const char *f1, const char *f2)
 {
-    repo_check(arguments);
-    puts("repo_add()");
+    int len;
+    char *new;
+
+    len = strlen(f1);
+    new = (char *) malloc((len + strlen(f2) + 1) * sizeof (char));
+    if (new != NULL) {
+        strcpy(new, f1);
+        strcpy(new+len, f2);
+    }
+    return new;
 }
 
-void repo_remove(struct arguments *arguments)
+void repo_check(struct arguments *arguments)
 {
-    repo_check(arguments);
-    puts("repo_remove()");
+    puts("repo_check()");
 }
-

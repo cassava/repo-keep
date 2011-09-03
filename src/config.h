@@ -32,7 +32,21 @@ struct config_map {
     char *value;
 };
 
-/* config_parse: parse a simple key-value configuration file. */
+/* config_parse: parse a simple key-value configuration file.
+ * Arguments:
+ *   path      = path to the file to parse
+ *   config_map= map to fill with values (based on keys)
+ *   fail      = whether to fail on errors in the config file
+ * Returns:  0 = no problems detected
+ *          -1 = file described by path could not be opened
+ *           1 = (if fail != 0) on invalid line encountered
+ *           2 = (if fail != 0) on invalid key encountered
+ * Note: You must check tab yourself to see if any values have
+ * changed. If you have values set to NULL, they may still be
+ * NULL if the key was not found in the config file. All to say,
+ * a config file that exists but is empty will cause 0 to be
+ * returned.
+ */
 int config_parse(const char *path, struct config_map *tab, int fail);
 
 #endif // CONFIG_H

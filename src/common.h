@@ -19,9 +19,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define _GNU_SOURCE  // for asprintf
-#include <stdio.h>
-
 #define REPO_VERSION    "2.0"
 #define REPO_DATE       "1. September 2011"
 #define REPO_VERSION_STRING "repo " REPO_VERSION "  (" REPO_DATE ")"
@@ -53,6 +50,11 @@ struct arguments {
     char *argv[ARG_BUFFER]; // holds pointers to package arguments
     int argc;
 };
+
+/* in common.c */
+int file_exists(const char *);
+char *concat(const char *, const char *);
+void repo_check(struct arguments *);
 
 /* in update.c */
 void repo_update(struct arguments *);
