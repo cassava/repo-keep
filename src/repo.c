@@ -18,8 +18,6 @@
 
 #include "common.h"
 #include "config.h"
-#include "update.h"
-#include "sync.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -17,7 +17,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "update.h"
+#include "common.h"
 
 
 void repo_update(struct arguments *arguments)

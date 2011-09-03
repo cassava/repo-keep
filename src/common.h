@@ -54,4 +54,12 @@ struct arguments {
     int argc;
 };
 
+/* in update.c */
+void repo_update(struct arguments *);
+void repo_add(struct arguments *);
+void repo_remove(struct arguments *);
+
+/* in sync.c */
+void repo_sync(struct arguments *);
+
 #endif // COMMON_H

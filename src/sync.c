@@ -16,7 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "sync.h"
+#include "common.h"
 
 
 void repo_sync(struct arguments *arguments)
