@@ -1,5 +1,5 @@
 /*
- * config.c
+ * config_bm.c
  * For parsing the configuration file.
  * 
  * Spaces and comments starting with # are ignored.  Comments must be by
@@ -24,7 +24,7 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "config.h"
+#include "config_bm.h"
 
 #include <ctype.h>
 #include <limits.h>
@@ -60,7 +60,7 @@ int config_parse(const char *path, struct config_map *tab, int fail)
             c = value = strchr(&line[i], '=');
             if (value == NULL) {
                 fprintf(stderr, "error: invalid line in configuration file '%s':\n"
-                                "       %s", path, line);
+                                "       '%s'", path, line);
                 if (fail)
                     return 1;
                 else
@@ -78,7 +78,7 @@ int config_parse(const char *path, struct config_map *tab, int fail)
             map = binsearch(line, tab, tabsize);
             if (map == NULL) {
                 fprintf(stderr, "error: invalid key in configuration file '%s':\n"
-                                "       %s\n", path, line);
+                                "       '%s'\n", path, line);
                 if (fail)
                     return 2;
                 else

@@ -1,5 +1,5 @@
 /*
- * config.h
+ * config_bm.h
  * For parsing a simple key-value configuration file.
  * 
  * Spaces and comments starting with # are ignored.  Comments must be by
@@ -24,8 +24,8 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef CONFIGBM_H
+#define CONFIGBM_H
 
 struct config_map {
     char *key;
@@ -49,4 +49,4 @@ struct config_map {
  */
 int config_parse(const char *path, struct config_map *tab, int fail);
 
-#endif // CONFIG_H
+#endif // CONFIGBM_H

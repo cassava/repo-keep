@@ -17,7 +17,8 @@
  */
 
 #include "common.h"
-#include "config.h"
+#include "lib/config_bm.h"
+#include "lib/util_bm.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,7 +59,7 @@ static struct argp_option options[] = {
 
 static struct config_map configuration[] = {
     { "db_name", NULL },
-    { "db_path", NULL },
+    { "db_dir", NULL },
     { NULL, NULL }
 };
 
@@ -119,7 +120,7 @@ static char *tildestr(char *line)
     
     if (*line == '~') {
         home = getenv("HOME");
-        return concat(home, line+1);
+        return strcatbm(home, line+1);
     }
     return line;
 }
@@ -155,11 +156,12 @@ int main(int argc, char **argv)
                         "           %s\n"
                         "       with at least the following lines:\n"
                         "           db_name = name_of_database.db.tar.gz\n"
-                        "           db_path = /path/to/database/\n", default_config);
-        exit(ERROR_CONFIG);
+                        "           db_dir  = /path/to/database/\n", default_config);
+        exit(ERR_CONFIG);
     }
     arguments.db_name = configuration[0].value;
-    arguments.db_path = configuration[1].value;
+    arguments.db_dir = configuration[1].value;
+    arguments.db_path = strcatbm(arguments.db_dir, arguments.db_name);
 
     // perform the given action by switching on first character
     switch (*arguments.command) {
@@ -178,12 +180,13 @@ int main(int argc, char **argv)
         default:
             // should never happen
             fprintf(stderr, "error: this is an error that should never happen!\n");
-            exit(ERROR_UNDEF);
+            exit(ERR_UNDEF);
     }
 
     // finally
     free(default_config);
     free(arguments.db_name);
+    free(arguments.db_dir);
     free(arguments.db_path);
 
     return 0;

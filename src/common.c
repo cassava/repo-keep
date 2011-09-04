@@ -18,9 +18,9 @@
 
 #include "common.h"
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-int file_exists(const char *file)
+int file_readable(const char *file)
 {
     FILE *in = fopen(file, "r");
     if (in == NULL)
@@ -29,24 +29,13 @@ int file_exists(const char *file)
     return 1;
 }
 
-/* concat: concatenates two strings.
- * Note: remember to free the memory when done.
- */
-char *concat(const char *f1, const char *f2)
-{
-    int len;
-    char *new;
-
-    len = strlen(f1);
-    new = (char *) malloc((len + strlen(f2) + 1) * sizeof (char));
-    if (new != NULL) {
-        strcpy(new, f1);
-        strcpy(new+len, f2);
-    }
-    return new;
-}
-
-void repo_check(struct arguments *arguments)
+void repo_check(struct arguments *arg)
 {
     puts("repo_check()");
+    if (!file_readable(arg->db_path)) {
+        fprintf(stderr, "error: cannot open database '%s'\n", arg->db_path);
+        exit (ERR_DB);
+    } else if (arg->verbose) {
+        printf("found database '%s' at '%s'\n", arg->db_name, arg->db_dir);
+    }
 }

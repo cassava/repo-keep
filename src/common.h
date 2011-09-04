@@ -20,19 +20,23 @@
 #define COMMON_H
 
 #define REPO_VERSION    "2.0"
-#define REPO_DATE       "1. September 2011"
+#define REPO_DATE       "4. September 2011"
 #define REPO_VERSION_STRING "repo " REPO_VERSION "  (" REPO_DATE ")"
 
-#define ERROR_CMD       1
-#define ERROR_REPO      2
-#define ERROR_PKG       4
-#define ERROR_CONFIG    8
-#define ERROR_UNDEF     128
+#define ERR_DB        1
+#define ERR_REPO      2
+#define ERR_PKG       4
+#define ERR_CONFIG    8
+#define ERR_CMD       64
+#define ERR_UNDEF     128
 
 #define ARG_BUFFER      1024
 #define CONFIG_PATH     "~/.repo.conf"
 #define CONFIG_FAIL     0
 #define CONFIG_LEN      2
+
+#define SYSTEM_REPO_REMOVE "repo-remove"
+#define SYSTEM_REPO_ADD    "repo-add"
 
 #define PKG_STRICT_EXT  "-[a-z0-9._]+-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)"
 #define PKG_LENIENT_EXT "-.+-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)"
@@ -45,15 +49,16 @@ struct arguments {
     int verbose;            // tell me more!
     char *config;           // configuration file where next two values are stored
     char *db_name;          // config::database name
-    char *db_path;          // config::path to db location (with packages)
+    char *db_dir;           // config::path to db location (with packages)
+    char *db_path;          // db_name and db_path together
     char *command;          // command to execute (one of: sync, update, add, remove)
     char *argv[ARG_BUFFER]; // holds pointers to package arguments
     int argc;
 };
 
 /* in common.c */
-int file_exists(const char *);
-char *concat(const char *, const char *);
+int file_readable(const char *);
+//char *file_age_cmp(char *, char **, int);
 void repo_check(struct arguments *);
 
 /* in update.c */
