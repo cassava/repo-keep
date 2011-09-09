@@ -125,14 +125,40 @@ static char *tildestr(char *line)
     return line;
 }
 
+static void load_config(struct arguments *arguments, char *default_config)
+{
+    int i, ret;
+
+    // read the configuration file
+    if (arguments->verbose)
+        printf("Using configuration file '%s'\n", arguments->config);
+    ret = config_parse(arguments->config, configuration, CONFIG_FAIL);
+    for (i = 0; i < CONFIG_LEN; i++)
+        if (configuration[i].value == NULL) {
+            fprintf(stderr, "Error: required value for key '%s' missing from configuration file\n",
+                    configuration[i].key);
+            ret = -1;
+        }
+    if (ret == -1) { // there was no configuration file or a problem with the values
+        fprintf(stderr, "Error: repo requires a configuration file, by default located at\n"
+                        "           %s\n"
+                        "       with at least the following lines:\n"
+                        "           db_name = name_of_database.db.tar.gz\n"
+                        "           db_dir  = /path/to/database/\n", default_config);
+        exit(ERR_CONFIG);
+    }
+    arguments->db_name = configuration[0].value;
+    arguments->db_dir = configuration[1].value;
+    arguments->db_path = strcatbm(arguments->db_dir, arguments->db_name);
+}
+
 
 int main(int argc, char **argv)
 {
     struct arguments arguments;
     struct argp argp = {options, parse_opt, args_doc, doc};
     char *default_config = tildestr(CONFIG_PATH);
-    int i, ret;
-    
+
     // set default values
     arguments.soft = 0;
     arguments.natural = 0;
@@ -140,28 +166,9 @@ int main(int argc, char **argv)
     arguments.verbose = 0;
     arguments.config = default_config;
 
-    // parse the command line arguments
+    // parse the command line arguments and load config file
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
-
-    // read the configuration file
-    ret = config_parse(arguments.config, configuration, CONFIG_FAIL);
-    for (i = 0; i < CONFIG_LEN; i++)
-        if (configuration[i].value == NULL) {
-            fprintf(stderr, "error: required value for key '%s' missing from configuration file\n",
-                    configuration[i].key);
-            ret = -1;
-        }
-    if (ret == -1) { // there was no configuration file or a problem with the values
-        fprintf(stderr, "error: repo requires a configuration file, by default located at\n"
-                        "           %s\n"
-                        "       with at least the following lines:\n"
-                        "           db_name = name_of_database.db.tar.gz\n"
-                        "           db_dir  = /path/to/database/\n", default_config);
-        exit(ERR_CONFIG);
-    }
-    arguments.db_name = configuration[0].value;
-    arguments.db_dir = configuration[1].value;
-    arguments.db_path = strcatbm(arguments.db_dir, arguments.db_name);
+    load_config(&arguments, default_config);
 
     // perform the given action by switching on first character
     switch (*arguments.command) {
