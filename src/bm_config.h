@@ -24,15 +24,16 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef CONFIGBM_H
-#define CONFIGBM_H
+#ifndef BMCONFIG_H
+#define BMCONFIG_H
 
 struct config_map {
     char *key;
     char *value;
 };
 
-/* config_parse: parse a simple key-value configuration file.
+/*
+ * config_parse: parse a simple key-value configuration file.
  * Arguments:
  *   path      = path to the file to parse
  *   config_map= map to fill with values (based on keys)
@@ -47,6 +48,6 @@ struct config_map {
  * a config file that exists but is empty will cause 0 to be
  * returned.
  */
-int config_parse(const char *path, struct config_map *tab, int fail);
+extern int config_parse(const char *path, struct config_map tab[], int fail);
 
-#endif // CONFIGBM_H
+#endif // BMCONFIG_H

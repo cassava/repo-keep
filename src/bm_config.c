@@ -24,82 +24,16 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "config_bm.h"
+#include "bm_config.h"
 
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-static struct config_map *binsearch(char *, struct config_map *, int);
-static char *strtrim(char *);
-
-int config_parse(const char *path, struct config_map *tab, int fail)
-{
-    FILE *in = fopen(path, "r");
- 
-    if (in != NULL) {
-        char line[LINE_MAX+1];
-        char *value, *c;
-        int tabsize;
-        struct config_map *map;
-
-        for (tabsize = 1; tab[tabsize].key != NULL; tabsize++)
-            ;
- 
-        while (fgets(line, sizeof line, in) != NULL) {
-            // find position with first non whitespace
-            size_t i = strspn(line, " \t\n\v");
-
-            // skip comments
-            if (line[i] == '\0' || line[i] == '#')
-                continue;
- 
-            // Process non-comment line
-            // split line into two, by overwriting the first '=' to '\0'
-            c = value = strchr(&line[i], '=');
-            if (value == NULL) {
-                fprintf(stderr, "error: invalid line in configuration file '%s':\n"
-                                "       '%s'", path, line);
-                if (fail)
-                    return 1;
-                else
-                    continue;
-            }
-            *value++ = '\0';
-            // trim the whitespace from the end of the key
-            while (isspace(*--c))
-                ;
-            *++c = '\0';
-            // trim the whitespace from the value
-            value = strtrim(value);
-            
-            // get correct map for the particular key (takes O(log n) time)
-            map = binsearch(line, tab, tabsize);
-            if (map == NULL) {
-                fprintf(stderr, "error: invalid key in configuration file '%s':\n"
-                                "       '%s'\n", path, line);
-                if (fail)
-                    return 2;
-                else
-                    continue;
-            }
-            
-            // am not checking if malloc returns NULL because in this case moot.
-            map->value = (char *) malloc((strlen(value)+1) * sizeof (char));
-            strcpy(map->value, value);
-        }
-    } else {
-        // some error happened while opening the file
-        fprintf(stderr, "error: could not open configuration file '%s'\n", path);
-        return -1;
-    }
- 
-    return 0;
-}
-
-
-/* binsearch: find word in tab[0]...tab[n-1].
+/*
+ * binsearch: find word in tab[0]...tab[n-1].
  * We are assuming that tab is sorted with
  *   tab[i] < tab[i+1] for all i
  */
@@ -138,5 +72,74 @@ static char *strtrim(char *word)
         *++end = '\0';
     }
     return word;
+}
+
+/* config_parse: parse config file given by path and tab. */
+int config_parse(const char *path, struct config_map tab[], int fail)
+{
+    FILE *in = fopen(path, "r");
+ 
+    if (in != NULL) {
+        char line[LINE_MAX+1];
+        char *value, *c;
+        int tabsize;
+        struct config_map *map;
+
+        for (tabsize = 1; tab[tabsize].key != NULL; tabsize++)
+            ;
+ 
+        while (fgets(line, sizeof line, in) != NULL) {
+            // find position with first non whitespace
+            size_t i = strspn(line, " \t\n\v");
+
+            // skip comments
+            if (line[i] == '\0' || line[i] == '#')
+                continue;
+ 
+            // Process non-comment line
+            // split line into two, by overwriting the first '=' to '\0'
+            c = value = strchr(&line[i], '=');
+            if (value == NULL) {
+                fprintf(stderr, "Error: invalid line in configuration file '%s':\n"
+                                "       '%s'", path, line);
+                if (fail)
+                    return 1;
+                else
+                    continue;
+            }
+            *value++ = '\0';
+            // trim the whitespace from the end of the key
+            while (isspace(*--c))
+                ;
+            *++c = '\0';
+            // trim the whitespace from the value
+            value = strtrim(value);
+            
+            // get correct map for the particular key (takes O(log n) time)
+            map = binsearch(line, tab, tabsize);
+            if (map == NULL) {
+                // NOTE: if the key is not invalid, then tab may not be sorted
+                fprintf(stderr, "Error: invalid key in configuration file '%s':\n"
+                                "       '%s'\n", path, line);
+                if (fail)
+                    return 2;
+                else
+                    continue;
+            }
+            
+            map->value = malloc((strlen(value)+1) * sizeof (char));
+            if (map->value == NULL) {
+                fputs("Error [bm_config.c]: cannot allocate memory.", stderr);
+                return -1;
+            }
+            strcpy(map->value, value);
+        }
+    } else {
+        // some error happened while opening the file
+        fprintf(stderr, "Error: could not open configuration file '%s'\n", path);
+        return -1;
+    }
+ 
+    return 0;
 }
 

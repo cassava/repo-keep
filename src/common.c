@@ -17,8 +17,10 @@
  */
 
 #include "common.h"
+
 #include <stdio.h>
 #include <stdlib.h>
+
 
 int file_readable(const char *file)
 {
@@ -31,11 +33,10 @@ int file_readable(const char *file)
 
 void repo_check(struct arguments *arg)
 {
-    puts("repo_check()");
     if (!file_readable(arg->db_path)) {
-        fprintf(stderr, "error: cannot open database '%s'\n", arg->db_path);
+        fprintf(stderr, "Error: cannot open database '%s'\n", arg->db_path);
         exit (ERR_DB);
     } else if (arg->verbose) {
-        printf("found database '%s' at '%s'\n", arg->db_name, arg->db_dir);
+        printf("Found database '%s' at '%s'\n", arg->db_name, arg->db_dir);
     }
 }

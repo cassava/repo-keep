@@ -18,44 +18,43 @@
  */
 
 #include "common.h"
-#include "lib/util_bm.h"
+#include "bm_util.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
 
 void repo_update(struct arguments *arg)
 {
-    puts("repo_update()");
     repo_check(arg);
 }
 
 void repo_add(struct arguments *arg)
 {
-    puts("repo_add()");
     repo_check(arg);
 }
 
 void repo_remove(struct arguments *arg)
 {
-    char *cmd;
+    char *cmd, *argstr;
 
-    puts("repo_remove()");
     repo_check(arg);
 
     // remove entry from database
-    int i;
-    for (i = 0; i < arg->argc; i++) {
-        cmd = strvcatbm(SYSTEM_REPO_REMOVE, " ", arg->db_path, " ", arg->argv[i]);
-        puts(cmd);
-        //system(cmd);
+    argstr = bm_strjoin(arg->argv, arg->argc, " ", 0);
+    cmd = bm_strvcat(SYSTEM_REPO_REMOVE, " ", arg->db_path, " ", argstr, NULL);
+    if (arg->verbose) puts(cmd);
+    //system(cmd);
+    free(cmd);
+    
+    // if files should be removed, remove files
+    if (!arg->soft) {
+        cmd = bm_strvcat("cd ", arg->db_dir, " && ls ", argstr, NULL);
+        if (arg->verbose) puts(cmd);
+        system(cmd);
         free(cmd);
-        
-        // if files should be removed, remove files
-        if (!arg->soft) {
-            //TODO
-            puts("deleting all files");
-        }
     }
 
+    free(argstr);
 }
 

@@ -17,8 +17,8 @@
  */
 
 #include "common.h"
-#include "lib/config_bm.h"
-#include "lib/util_bm.h"
+#include "bm_config.h"
+#include "bm_util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,8 +58,8 @@ static struct argp_option options[] = {
 };
 
 static struct config_map configuration[] = {
-    { "db_name", NULL },
     { "db_dir", NULL },
+    { "db_name", NULL },
     { NULL, NULL }
 };
 
@@ -97,7 +97,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
             }
             break;
         case ARGP_KEY_END:
-            arguments->argc = state->arg_num;
+            arguments->argc = state->arg_num - 1;
             // Make sure that the amount of arguments is correct
             if ( (state->arg_num < 1) ||
                  ( (!strcmp(arguments->command, "update")
@@ -120,7 +120,7 @@ static char *tildestr(char *line)
     
     if (*line == '~') {
         home = getenv("HOME");
-        return strcatbm(home, line+1);
+        return bm_strcat(home, line+1);
     }
     return line;
 }
@@ -147,9 +147,9 @@ static void load_config(struct arguments *arguments, char *default_config)
                         "           db_dir  = /path/to/database/\n", default_config);
         exit(ERR_CONFIG);
     }
-    arguments->db_name = configuration[0].value;
-    arguments->db_dir = configuration[1].value;
-    arguments->db_path = strcatbm(arguments->db_dir, arguments->db_name);
+    arguments->db_dir = configuration[0].value;
+    arguments->db_name = configuration[1].value;
+    arguments->db_path = bm_strcat(arguments->db_dir, arguments->db_name);
 }
 
 
