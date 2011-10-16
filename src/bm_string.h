@@ -35,7 +35,7 @@ char *bm_strcat(const char * /*f1*/, const char * /*f2*/);
  * Returns: may be NULL, if no space can be allocated.
  * Note: remember to call free() on result of this function.
  */
-char *bm_strjoin(char ** /*arr*/, int /*n*/, char * /*sep*/, int /*extra*/);
+char *bm_strjoin(char ** /*arr*/, int /*n*/, const char * /*sep*/, int /*extra*/);
 
 /*
  * bm_stracat: concatenates to a string n elements from an array.

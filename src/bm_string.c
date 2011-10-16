@@ -37,10 +37,11 @@ char *bm_strcat(const char *f1, const char *f2)
     return str;
 }
 
-char *bm_strjoin(char **arr, int n, char *delim, int extra)
+char *bm_strjoin(char **arr, int n, const char *delim, int extra)
 {
-    char *str, *s, *t;
-    size_t len = extra + 1;
+    char *str, *t;
+    const char *s;
+    size_t len = extra + 1;  /* one extra for '\0' */
     int i, m;
 
     m = strlen(delim);
@@ -54,17 +55,20 @@ char *bm_strjoin(char **arr, int n, char *delim, int extra)
         s = arr[i];
         while ((*t = *s) != '\0')
             (t++, s++);
-        s = delim;
-        while ((*t = *s) != '\0')
-            (t++, s++);
+        if (i < n-1) {
+            /* delimeter only between elements */
+            s = delim;
+            while ((*t = *s) != '\0')
+                (t++, s++);
+        }
     }
-    *(t-m) = '\0';
     return str;
 }
 
 char *bm_stracat(const char *f, char **arr, int n, int extra)
 {
-    char *str, *s, *t;
+    char *str, *t;
+    const char *s;
     size_t len = extra + 1;
     int i;
 
@@ -88,7 +92,8 @@ char *bm_stracat(const char *f, char **arr, int n, int extra)
 char *bm_strvcat(const char *f, ...)
 {
     va_list ap;
-    char *str, *s, *t;
+    char *str, *t;
+    const char *s;
     size_t len = 1;
 
     // determine length of final string

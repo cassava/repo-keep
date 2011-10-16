@@ -1,5 +1,12 @@
 CC = gcc
-CFLAGS = -Wall -O2
+CFLAGS = -Wall -Wextra
+
+# If we have debug or release mode
+ifdef DEBUG
+	CFLAGS += -ggdb
+else
+	CFLAGS += -O2
+endif
 
 objects = common.o sync.o update.o bm_config.o bm_util.o bm_string.o bm_list.o
 

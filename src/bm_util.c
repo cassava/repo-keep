@@ -63,8 +63,10 @@ Node *get_regex_files(const char *regex, const char *dir)
         char *path = bm_strvcat(dir, "/", entry->d_name, NULL);
         if (stat(path, &fstat) != 0) {
             perror("stat");
+            free(path);
             return NULL;
         }
+        free(path);
         if (! S_ISREG(fstat.st_mode))
             continue;
 
@@ -88,6 +90,7 @@ Node *get_regex_files(const char *regex, const char *dir)
         }
     }
 
+    closedir(dp);
     regfree(&preg);
     if (current != NULL)
         current->next = NULL;
@@ -116,7 +119,8 @@ void list_files(Node *head)
  */
 char *list_strjoin(Node *head, const char *delim)
 {
-    char *str, *s, *t;
+    char *str, *t;
+    const char *s;
     size_t len = 1;
     int m, n;
     Node *node;
@@ -130,17 +134,16 @@ char *list_strjoin(Node *head, const char *delim)
     for (node = head; node != NULL; node = node->next)
         len += strlen(node->data);
 
-    printf("len = %d\n", len);
     t = str = malloc(len * sizeof (char));
-    puts("here ok");
-    for (node = head; node != NULL; node = node->next) {
+    for (node = head; node != NULL; node = node->next, n--) {
         s = node->data;
         while ((*t = *s) != '\0')
             t++, s++;
-        s = delim;
-        while ((*t = *s) != '\0')
-            t++, s++;
+        if (n > 1) {
+            s = delim;
+            while ((*t = *s) != '\0')
+                t++, s++;
+        }
     }
-    *(t-m) = '\0';
     return str;
 }

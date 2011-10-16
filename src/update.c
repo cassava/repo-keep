@@ -52,7 +52,7 @@ void repo_remove(Arguments *arg)
     argstr = bm_strjoin(arg->argv, arg->argc, " ", 0);
     cmd = bm_strvcat(SYSTEM_REPO_REMOVE, " ", arg->db_path, " ", argstr, NULL);
     if (arg->verbose) puts(cmd);
-    //system(cmd);
+    system(cmd);
 
     free(cmd);
     free(argstr);
@@ -65,7 +65,7 @@ void repo_remove(Arguments *arg)
         argstr = bm_strjoin(arg->argv, arg->argc, "|", 0);
         regex = bm_strvcat("^(", argstr, ")", PKG_EXT, NULL);
         head = get_regex_files(regex, arg->db_dir);
-        //free(argstr);
+        free(argstr);
         free(regex);
 
         argstr = list_strjoin(head, "\n              ");
@@ -77,7 +77,7 @@ void repo_remove(Arguments *arg)
             cmd = bm_strvcat("cd ", arg->db_dir, " && rm ", argstr, NULL);
             free(argstr);
 
-            //system(cmd);
+            system(cmd);
             free(cmd);
         }
 

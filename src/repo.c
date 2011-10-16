@@ -49,13 +49,13 @@ static char doc[] =
 
 static struct argp_option options[] = {
   // long           key  arg       ?  description
-    {"soft",        's', NULL,     0, "Don't delete any files (n/a for: sync)"},
-    {"natural",     't', NULL,     0, "Don't take package creation time into account"},
-    {"no-confirm",  'n', NULL,     0, "Don't confirm file deletion, just do it."},
-    {"quiet",       'q', NULL,     0, "Don't produce unnecessary output"},
-    {"verbose",     'v', NULL,     0, "Tell me more, tell me more!"},
-    {"config",      'c', "CONFIG", 0, "Alternate configuration file"},
-    { NULL }
+    {"soft",        's', NULL,     0, "Don't delete any files (n/a for: sync)", 0},
+    {"natural",     't', NULL,     0, "Don't take package creation time into account", 0},
+    {"no-confirm",  'n', NULL,     0, "Don't confirm file deletion, just do it.", 0},
+    {"quiet",       'q', NULL,     0, "Don't produce unnecessary output", -2},
+    {"verbose",     'v', NULL,     0, "Tell me more, tell me more!", -2},
+    {"config",      'c', "CONFIG", 0, "Alternate configuration file", 1},
+    { NULL, '\0', NULL, 0, NULL, -1}
 };
 
 static struct config_map configuration[] = {
@@ -111,6 +111,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
                    || !strcmp(arguments->command, "remove"))
                    && (state->arg_num == 1) ) )
                 argp_usage(state);
+            break;
         default:
             return ARGP_ERR_UNKNOWN;
     }
@@ -160,7 +161,7 @@ static void load_config(struct arguments *arguments, char *default_config)
 int main(int argc, char **argv)
 {
     struct arguments arguments;
-    struct argp argp = {options, parse_opt, args_doc, doc};
+    struct argp argp = {options, parse_opt, args_doc, doc, NULL, NULL, NULL};
     char *default_config = tildestr(CONFIG_PATH);
 
     // set default values
