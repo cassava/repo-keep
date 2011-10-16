@@ -48,6 +48,6 @@ struct config_map {
  * a config file that exists but is empty will cause 0 to be
  * returned.
  */
-extern int config_parse(const char *path, struct config_map tab[], int fail);
+int config_parse(const char *path, struct config_map tab[], int fail);
 
 #endif // BMCONFIG_H

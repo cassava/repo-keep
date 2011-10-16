@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -Wall -O2
 
-objects = common.o sync.o update.o bm_config.o bm_util.o
+objects = common.o sync.o update.o bm_config.o bm_util.o bm_string.o bm_list.o
 
-.PHONY: default clean
+.PHONY: clean
 
 ######################################################################
 repo : $(objects) repo.c common.h
@@ -15,6 +15,10 @@ sync.o : sync.c common.h
 	$(CC) $(CFLAGS) -c sync.c
 update.o : update.c common.h
 	$(CC) $(CFLAGS) -c update.c
+bm_string.o : bm_string.c bm_string.h
+	$(CC) $(CFLAGS) -c bm_string.c
+bm_list.o : bm_list.c bm_list.h
+	$(CC) $(CFLAGS) -c bm_list.c
 bm_util.o : bm_util.c bm_util.h
 	$(CC) $(CFLAGS) -c bm_util.c
 bm_config.o : bm_config.c bm_config.h

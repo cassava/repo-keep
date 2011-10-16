@@ -18,43 +18,71 @@
  */
 
 #include "common.h"
+#include "bm_string.h"
 #include "bm_util.h"
-
+#include "bm_list.h"
 #include <stdio.h>
 #include <stdlib.h>
 
+#define DRYRUN
 
-void repo_update(struct arguments *arg)
+
+void repo_update(Arguments *arg)
 {
     repo_check(arg);
 }
 
-void repo_add(struct arguments *arg)
+void repo_add(Arguments *arg)
 {
     repo_check(arg);
 }
 
-void repo_remove(struct arguments *arg)
+/*
+ * repo_remove: remove the packages given in *arg from the database and maybe
+ * also from the filesystem (if !arg->soft). If an errors are encountered, an
+ * error message is printed and the operation is aborted.
+ */
+void repo_remove(Arguments *arg)
 {
     char *cmd, *argstr;
 
     repo_check(arg);
 
-    // remove entry from database
+    /* remove entry from database */
     argstr = bm_strjoin(arg->argv, arg->argc, " ", 0);
     cmd = bm_strvcat(SYSTEM_REPO_REMOVE, " ", arg->db_path, " ", argstr, NULL);
     if (arg->verbose) puts(cmd);
     //system(cmd);
-    free(cmd);
-    
-    // if files should be removed, remove files
-    if (!arg->soft) {
-        cmd = bm_strvcat("cd ", arg->db_dir, " && ls ", argstr, NULL);
-        if (arg->verbose) puts(cmd);
-        system(cmd);
-        free(cmd);
-    }
 
+    free(cmd);
     free(argstr);
+    
+    /* if files should be removed, remove files */
+    if (!arg->soft) {
+        char *regex, *mesg;
+        Node *head;
+
+        argstr = bm_strjoin(arg->argv, arg->argc, "|", 0);
+        regex = bm_strvcat("^(", argstr, ")", PKG_EXT, NULL);
+        head = get_regex_files(regex, arg->db_dir);
+        //free(argstr);
+        free(regex);
+
+        argstr = list_strjoin(head, "\n              ");
+        mesg = bm_strvcat("Delete files: ", argstr, "?", NULL);
+        free(argstr);
+
+        if (confirm(mesg, 1)) {
+            argstr = list_strjoin(head, " ");
+            cmd = bm_strvcat("cd ", arg->db_dir, " && rm ", argstr, NULL);
+            free(argstr);
+
+            //system(cmd);
+            free(cmd);
+        }
+
+        free(mesg);
+        list_free_all(head);
+    }
 }
 

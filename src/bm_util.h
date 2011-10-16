@@ -1,6 +1,6 @@
 /*
  * bm_util.h
- * Various helpful utilities.
+ * Various helpful functions.
  * 
  * Copyright (c) 2011 Ben Morgan <neembi@googlemail.com>
  * 
@@ -20,38 +20,33 @@
 #ifndef BMUTIL_H
 #define BMUTIL_H
 
-/*
- * bm_strcat: concatenates two strings.
- * Returns: may be NULL, if no space can be allocated.
- * Note: remember to call free() on result of this function.
- */
-extern char *bm_strcat(const char *, const char *);
+
+#define MAX_OUT_LINE 80
+
+
+typedef struct list_node {
+    char *data;
+    struct list_node *next;
+} Node;
+
 
 /*
- * bm_strjoin: concatenates to a string n elements from an array,
- * using the third argument as the delimiter between elements.
- * Arguments:
- *   extra = additional space allocated which will be unused.
- * Returns: may be NULL, if no space can be allocated.
- * Note: remember to call free() on result of this function.
+ * get_regex_files: get all files in dir that match regex.
+ * A pointer to the head of a linked list is returned.
+ * Warning: make sure to call list_free_all() on the returned Node when done.
  */
-extern char *bm_strjoin(char **, int, char *, int /*extra*/);
+Node *get_regex_files(const char * /*regex*/, const char * /*dir*/);
 
 /*
- * bm_stracat: concatenates to a string n elements from an array.
- * Arguments: the first argument may be a null pointer.
- *   extra = addional space allocated which will be unused.
- * Returns: may be NULL, if no space can be allocated.
- * Note: remember to call free() on result of this function.
+ * list_files: print a listing of all the files in linked list.
  */
-extern char *bm_stracat(const char *, char **, int, int /*extra*/);
+void list_files(Node * /*head*/);
 
 /*
- * bm_strvcat: concatenates variable amount of strings into a new string.
- * Arguments: takes char * arguments with a mandatory trailing NULL argument.
- * Returns: may be NULL, if no space can be allocated.
- * Note: remember to call free() on result of this function.
+ * list_strjoin: join all the list elements together.
+ * Returns the joined string. Don't forget to free it when done.
  */
-extern char *bm_strvcat(char *, ...);
+char *list_strjoin(Node * /*head*/, const char * /*sep*/);
+
 
 #endif // BMUTIL_H

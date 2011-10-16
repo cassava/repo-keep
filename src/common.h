@@ -38,13 +38,15 @@
 #define SYSTEM_REPO_REMOVE "repo-remove"
 #define SYSTEM_REPO_ADD    "repo-add"
 
-#define PKG_STRICT_EXT  "-[a-z0-9._]+-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)"
-#define PKG_LENIENT_EXT "-.+-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)"
+#define PKG_STRICT_EXT  "-[0-9][a-z0-9._]*-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)$"
+#define PKG_LENIENT_EXT "-[0-9].+-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)$"
+#define PKG_EXT         PKG_LENIENT_EXT
 
 
-struct arguments {
+typedef struct arguments {
     int soft;               // don't delete files
     int natural;            // don't compare file creation times
+    int confirm;            // confirm file deletion
     int quiet;              // don't print any unnecessary output
     int verbose;            // tell me more!
     char *config;           // configuration file where next two values are stored
@@ -54,19 +56,19 @@ struct arguments {
     char *command;          // command to execute (one of: sync, update, add, remove)
     char *argv[ARG_BUFFER]; // holds pointers to package arguments
     int argc;
-};
+} Arguments;
 
 /* in common.c */
 int file_readable(const char *);
-//char *file_age_cmp(char *, char **, int);
-void repo_check(struct arguments *);
+int confirm(const char *, int def);
+void repo_check(Arguments *);
 
 /* in update.c */
-void repo_update(struct arguments *);
-void repo_add(struct arguments *);
-void repo_remove(struct arguments *);
+void repo_update(Arguments *);
+void repo_add(Arguments *);
+void repo_remove(Arguments *);
 
 /* in sync.c */
-void repo_sync(struct arguments *);
+void repo_sync(Arguments *);
 
 #endif // COMMON_H

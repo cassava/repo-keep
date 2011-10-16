@@ -17,7 +17,6 @@
  */
 
 #include "common.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -30,6 +29,34 @@ int file_readable(const char *file)
     fclose(in);
     return 1;
 }
+
+int confirm(const char *question, int def)
+{
+    char c;
+    
+    printf("%s [%s] ", question, def ? "Y/n" : "y/N");
+
+    c = getchar();
+    if (def)
+        switch (c) {
+        case 'n':
+        case 'N':
+        case 'q':
+        case 'Q':
+            return 0;
+        default:
+            return 1;
+        }
+    else
+        switch (c) {
+        case 'y':
+        case 'Y':
+            return 1;
+        default:
+            return 0;
+        }
+}
+
 
 void repo_check(struct arguments *arg)
 {

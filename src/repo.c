@@ -18,7 +18,7 @@
 
 #include "common.h"
 #include "bm_config.h"
-#include "bm_util.h"
+#include "bm_string.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,12 +48,13 @@ static char doc[] =
     "anything else. For example: pacman, and not pacman-3.5.3-1-i386.pkg.tar.xz";
 
 static struct argp_option options[] = {
-  // long       key  arg       ?  description
-    {"soft",    's', NULL,     0, "Don't delete any files (n/a for: sync)"},
-    {"natural", 'n', NULL,     0, "Don't take package creation time into account"},
-    {"quiet",   'q', NULL,     0, "Don't produce unnecessary output"},
-    {"verbose", 'v', NULL,     0, "Tell me more, tell me more!"},
-    {"config",  'c', "CONFIG", 0, "Alternate configuration file"},
+  // long           key  arg       ?  description
+    {"soft",        's', NULL,     0, "Don't delete any files (n/a for: sync)"},
+    {"natural",     't', NULL,     0, "Don't take package creation time into account"},
+    {"no-confirm",  'n', NULL,     0, "Don't confirm file deletion, just do it."},
+    {"quiet",       'q', NULL,     0, "Don't produce unnecessary output"},
+    {"verbose",     'v', NULL,     0, "Tell me more, tell me more!"},
+    {"config",      'c', "CONFIG", 0, "Alternate configuration file"},
     { NULL }
 };
 
@@ -71,8 +72,11 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         case 's': // soft
             arguments->soft = 1;
             break;
-        case 'n': // natural
+        case 't': // natural
             arguments->natural = 1;
+            break;
+        case 'n':
+            arguments->confirm = 0;
             break;
         case 'q': // quiet
             arguments->quiet = 1;
@@ -162,6 +166,7 @@ int main(int argc, char **argv)
     // set default values
     arguments.soft = 0;
     arguments.natural = 0;
+    arguments.confirm = 1;
     arguments.quiet = 0;
     arguments.verbose = 0;
     arguments.config = default_config;

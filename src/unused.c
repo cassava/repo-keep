@@ -1,37 +1,38 @@
+/*
+ * unused.c
+ * 
+ * This file is used to test certain functions during development.
+ */
 
-/* tab2str: s must be large enough to hold lim+1 > 3 characters. */
-static void tab2str(char *s, int lim, struct config_map *tab)
+#include "bm_list.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+
+typedef struct list_node {
+    char *data;
+    struct list_node *next;
+} Node;
+
+
+int main(int argc, char **argv)
 {
-    char *t = s;
-    int n, m;
-
-    *t++ = '{';
-    for (;;) {
-        if (tab->key != NULL) {
-            n = strlen(tab->key);
-            m = (tab->value == NULL ? 0 : strlen(tab->value));
-            lim -= n + m + 3; // 2 is for =, comma, and space.
-            if (lim > 0) {
-                strcpy(t, tab->key);
-                t+=n;
-                *t++ = '=';
-                if (tab->value != NULL) {
-                    strcpy(t, tab->value);
-                    t += m;
-                }
-                *t++ = ',';
-                *t++ = ' ';
-            } else {
-                // not enough space anymore
-                break;
-            }
-            tab++;
-        } else {
-            // we are at end of array
-            break;
-        }
+    Node *head = NULL;
+    
+    // put strings into list backwards
+    while (--argc > 0) {
+        Node *node = list_node();
+        node->data = argv[argc];
+        head = list_push(head, node);
     }
-    *(t-2) = '}';
-    *(t-1) = '\0';
+
+    // print out input
+    while (!list_empty(head)) {
+        char *data = list_remove(&head);
+        printf("%s ", data);
+    }
+    putchar('\n');
+
+    return 0;
 }
 
