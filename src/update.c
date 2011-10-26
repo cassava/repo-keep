@@ -2,7 +2,7 @@
  * update.c
  * Includes the code for the commands 'add', 'remove' and 'update'.
  * 
- * Copyright (c) 2010–2011 Ben Morgan <neembi@googlemail.com>
+ * Copyright (c) 2011 Ben Morgan <neembi@googlemail.com>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
