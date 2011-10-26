@@ -1,11 +1,15 @@
-CHANGES: REPO                                                      2.0
+CHANGES: REPO-KEEP                                                 2.0
 =======================================================================
 
 2.0   (X. September 2011)
-This release is a complete rewrite of repo-update. The naming has been
-changed to just repo, the programming language has been changed to C,
-and many improvements have been made to the concept (hence the name
-change).
+This release is a complete rewrite of repo-update. The naming of the executable
+has been changed to just repo, the project has been renamed repo-keep, the
+programming language has been changed to C, and many improvements have been
+made to the concept (hence the name change).
+
+Enhancements:
+  - Available commands: sync, update, add, remove
+  - See help for options
 
 _______________________________
 1.4.1 (20. April 2011)

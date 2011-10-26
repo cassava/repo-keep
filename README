@@ -1,10 +1,13 @@
-REPO-UPDATE README
+REPO-KEEP README
 =======================================================================
 
-**Repo-Update** is a supplement to `repo-add` which simplifies updating local
-repositories. It is _not_ a suplement to `repo-remove` however.
+REPO-KEEP IS INCOMPLETE AND STILL UNDER DEVELOPMENT. WHEN IT IS DONE,
+THEN THIS PAGE WILL ALSO BE COMPLETELY UPDATED.
 
-Repo-Update is distributed under the ISC License (see `LICENSE`).
+**Repo-Update** was a supplement to `repo-add` which simplified updating local
+repositories. It was _not_ a suplement to `repo-remove` however.
+
+Repo-Keep is distributed under the MIT License (see `LICENSE`).
 
 
 ### Limitations
@@ -15,11 +18,10 @@ this). If there is one, please let me know.
 
 As of yet, Repo-Update does not however provide the following features:
 
-  * automatic removal of packages
   * multiple repositories
 
-If you need these features or more, and you would like to modify Repo-Update,
-feel free to do so (as it is licensed under the ISC). If you want to send me
+If you need these features or more, and you would like to modify Repo-Keep,
+feel free to do so (as it is licensed under the MIT). If you want to send me
 your modifications, I would also be grateful.
 
 

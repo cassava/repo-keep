@@ -1,11 +1,11 @@
 # Maintainer: Ben Morgan <neembi@googlemail.com>
-pkgname=repo-update
-pkgver=1.4.1
+pkgname=repo-keep
+pkgver=2.0
 pkgrel=1
 pkgdesc="A supplement to repo-add which simplifies updating local repositories"
 arch=('any')
 url="https://github.com/cassava/repo-update"
-license=('ISC')
+license=('MIT')
 depends=(pacman)
 source=(https://github.com/downloads/cassava/$pkgname/$pkgname-$pkgver.tar.gz)
 
