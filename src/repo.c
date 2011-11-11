@@ -45,7 +45,7 @@ static char doc[] =
     "  update           Same as add, except scan and add changed packages.\n"
     "\n"
     "NOTE: In all of these cases, <pkgname> is the name of the package, without\n"
-    "anything else. For example: pacman, and not pacman-3.5.3-1-i386.pkg.tar.xz";
+    "anything else. For example: pacman, and not pacman-3.5.3-1-i686.pkg.tar.xz";
 
 static struct argp_option options[] = {
   // long           key  arg       ?  description
@@ -133,6 +133,7 @@ static char *tildestr(char *line)
 static void load_config(struct arguments *arguments, char *default_config)
 {
     int i, ret;
+    size_t len;
 
     // read the configuration file
     if (arguments->verbose)
@@ -152,7 +153,18 @@ static void load_config(struct arguments *arguments, char *default_config)
                         "           db_dir  = /path/to/database/\n", default_config);
         exit(ERR_CONFIG);
     }
+
     arguments->db_dir = configuration[0].value;
+    /* check that arguments->db_dir ends with a / character */
+    len = strlen(arguments->db_dir);
+    if (arguments->db_dir[len-1] != '/') {
+        char *ptr = malloc((len+2) * sizeof (char));
+        strcpy(ptr, arguments->db_dir);
+        ptr[len++] = '/';
+        ptr[len] = '\0';
+        free(arguments->db_dir);
+        arguments->db_dir = configuration[0].value = ptr;
+    }
     arguments->db_name = configuration[1].value;
     arguments->db_path = bm_strcat(arguments->db_dir, arguments->db_name);
 }

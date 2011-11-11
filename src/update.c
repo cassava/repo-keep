@@ -23,6 +23,7 @@
 #include "bm_list.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define DRYRUN
 
@@ -39,8 +40,7 @@ void repo_add(Arguments *arg)
 
 /*
  * repo_remove: remove the packages given in *arg from the database and maybe
- * also from the filesystem (if !arg->soft). If an errors are encountered, an
- * error message is printed and the operation is aborted.
+ * also from the filesystem (if !arg->soft).
  */
 void repo_remove(Arguments *arg)
 {
@@ -60,7 +60,7 @@ void repo_remove(Arguments *arg)
     /* if files should be removed, remove files */
     if (!arg->soft) {
         char *regex, *mesg;
-        Node *head;
+        Node *head;  /* head of a linked list of filenames */
 
         argstr = bm_strjoin(arg->argv, arg->argc, "|", 0);
         regex = bm_strvcat("^(", argstr, ")", PKG_EXT, NULL);
@@ -72,13 +72,31 @@ void repo_remove(Arguments *arg)
         mesg = bm_strvcat("Delete files: ", argstr, "?", NULL);
         free(argstr);
 
-        if (confirm(mesg, 1)) {
-            argstr = list_strjoin(head, " ");
-            cmd = bm_strvcat("cd ", arg->db_dir, " && rm ", argstr, NULL);
-            free(argstr);
+        /* ask confirmation; may auto-confirm */
+        if (confirm(mesg, 1, arg->confirm)) {
+            char *buffer;
+            size_t bufsize = 0;
+            size_t bufidx = strlen(arg->db_dir);
+            Node *iter; /* iterator through all the nodes */
 
-            system(cmd);
-            free(cmd);
+            /* find out how big our buffer needs to be */
+            for (iter = head; iter != NULL; iter = iter->next) {
+                size_t len = strlen(iter->data);
+                if (len > bufsize)
+                    bufsize = len;
+            }
+            bufsize += bufidx + 2; /* 2 for path character and terminating \0 */
+            buffer = malloc(bufsize * sizeof (char));
+
+            /* remove files */
+            strcpy(buffer, arg->db_dir);
+            for (iter = head; iter != NULL; iter = iter->next) {
+                strcpy(buffer+bufidx, iter->data);
+                if (arg->verbose)
+                    printf("removing file: %s\n", buffer);
+                if (remove(buffer) != 0)
+                    perror("Error (unlink)");
+            }
         }
 
         free(mesg);

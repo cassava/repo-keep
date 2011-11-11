@@ -21,6 +21,9 @@
 #include <stdlib.h>
 
 
+/*
+ * file_readable: return whether the file in question is readable or not.
+ */
 int file_readable(const char *file)
 {
     FILE *in = fopen(file, "r");
@@ -30,13 +33,24 @@ int file_readable(const char *file)
     return 1;
 }
 
-int confirm(const char *question, int def)
-{
-    char c;
-    
-    printf("%s [%s] ", question, def ? "Y/n" : "y/N");
+/*
+ * confirm: ask the user a question and get an answer.
+ * If the parameter confirm is true, the question is actually asked, and on
+ * stderr. Otherwise, the default is accepted. (This is useful for documenting
+ * what the system is doing if you used an option such as --no-confirm.
+ */
 
-    c = getchar();
+int confirm(const char *question, int def, int confirm)
+{
+    char c = ' ';
+    
+    if (confirm) {
+        fprintf(stderr, "%s [%s] ", question, def ? "Y/n" : "y/N");
+        c = getchar();
+    } else {
+        printf("%s [%s] \n", question, def ? "Y/n" : "y/N");
+    }
+
     if (def)
         switch (c) {
         case 'n':
@@ -57,7 +71,10 @@ int confirm(const char *question, int def)
         }
 }
 
-
+/*
+ * repo_check: print an error message and quit in case there is anything
+ * wrong with db_name and db_dir given in the configuration file.
+ */
 void repo_check(struct arguments *arg)
 {
     if (!file_readable(arg->db_path)) {

@@ -60,7 +60,7 @@ typedef struct arguments {
 
 /* in common.c */
 int file_readable(const char *);
-int confirm(const char *, int def);
+int confirm(const char *, int /*def*/, int /*confirm*/);
 void repo_check(Arguments *);
 
 /* in update.c */
