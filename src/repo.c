@@ -51,11 +51,9 @@ static struct argp_option options[] = {
   // long           key  arg       ?  description
     {"soft",        's', NULL,     0, "Don't delete any files (n/a for: sync)", 0},
     {"natural",     't', NULL,     0, "Don't take package creation time into account", 0},
-    {"no-confirm",  'n', NULL,     0, "Don't confirm file deletion, just do it.", 0},
-    {"quiet",       'q', NULL,     0, "Don't produce unnecessary output", -2},
-    {"verbose",     'v', NULL,     0, "Tell me more, tell me more!", -2},
+    {"quiet",       'q', NULL,     0, "Don't confirm file deletion, just do it.", 0},
     {"config",      'c', "CONFIG", 0, "Alternate configuration file", 1},
-    { NULL, '\0', NULL, 0, NULL, -1}
+    { 0, 0, NULL, 0, NULL, 0}
 };
 
 static struct config_map configuration[] = {
@@ -75,16 +73,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         case 't': // natural
             arguments->natural = 1;
             break;
-        case 'n':
-            arguments->confirm = 0;
-            break;
-        case 'q': // quiet
+        case 'q':
             arguments->quiet = 1;
-            arguments->verbose = 0;
-            break;
-        case 'v': // verbose
-            arguments->verbose = 1;
-            arguments->quiet = 0;
             break;
         case 'c': // alternative config
             arguments->config = arg;
@@ -136,8 +126,7 @@ static void load_config(struct arguments *arguments, char *default_config)
     size_t len;
 
     // read the configuration file
-    if (arguments->verbose)
-        printf("Using configuration file '%s'\n", arguments->config);
+    printf("Using configuration file: '%s'\n", arguments->config);
     ret = config_parse(arguments->config, configuration, CONFIG_FAIL);
     for (i = 0; i < CONFIG_LEN; i++)
         if (configuration[i].value == NULL) {
@@ -179,14 +168,13 @@ int main(int argc, char **argv)
     // set default values
     arguments.soft = 0;
     arguments.natural = 0;
-    arguments.confirm = 1;
     arguments.quiet = 0;
-    arguments.verbose = 0;
     arguments.config = default_config;
 
     // parse the command line arguments and load config file
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
     load_config(&arguments, default_config);
+    printf("Using database: %s\n", arguments.db_path);
 
     // perform the given action by switching on first character
     switch (*arguments.command) {
@@ -204,7 +192,7 @@ int main(int argc, char **argv)
             break;
         default:
             // should never happen
-            fprintf(stderr, "error: this is an error that should never happen!\n");
+            fprintf(stderr, "Error: this is an error that should never happen!\n");
             exit(ERR_UNDEF);
     }
 

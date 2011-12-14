@@ -35,20 +35,20 @@ int file_readable(const char *file)
 
 /*
  * confirm: ask the user a question and get an answer.
- * If the parameter confirm is true, the question is actually asked, and on
+ * If the parameter quiet is false, the question is actually asked, and on
  * stderr. Otherwise, the default is accepted. (This is useful for documenting
- * what the system is doing if you used an option such as --no-confirm.
+ * what the system is doing if you used an option such as --quiet.)
  */
 
-int confirm(const char *question, int def, int confirm)
+int confirm(const char *question, int def, int quiet)
 {
     char c = ' ';
     
-    if (confirm) {
+    if (quiet) {
+        printf("%s [%s] .\n", question, def ? "Y/n" : "y/N");
+    } else {
         fprintf(stderr, "%s [%s] ", question, def ? "Y/n" : "y/N");
         c = getchar();
-    } else {
-        printf("%s [%s] \n", question, def ? "Y/n" : "y/N");
     }
 
     if (def)
@@ -80,7 +80,5 @@ void repo_check(struct arguments *arg)
     if (!file_readable(arg->db_path)) {
         fprintf(stderr, "Error: cannot open database '%s'\n", arg->db_path);
         exit (ERR_DB);
-    } else if (arg->verbose) {
-        printf("Found database '%s' at '%s'\n", arg->db_name, arg->db_dir);
     }
 }

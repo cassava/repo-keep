@@ -2,12 +2,18 @@
 pkgname=repo-keep
 pkgver=2.0
 pkgrel=1
-pkgdesc="A supplement to repo-add which simplifies updating local repositories"
+pkgdesc="A supplement to repo-add and repo-remove which simplifies updating local repositories"
 arch=('any')
 url="https://github.com/cassava/repo-update"
 license=('MIT')
 depends=(pacman)
 source=(https://github.com/downloads/cassava/$pkgname/$pkgname-$pkgver.tar.gz)
+
+build() {
+  cd $srcdir/$pkgname-$pkgver
+
+  make
+}
 
 package() {
   cd $srcdir/$pkgname-$pkgver

@@ -24,6 +24,7 @@
 #define MAX_OUT_LINE 80
 
 
+/* See bm_list.h for an explanation on this. */
 typedef struct list_node {
     char *data;
     struct list_node *next;
@@ -32,21 +33,21 @@ typedef struct list_node {
 
 /*
  * get_regex_files: get all files in dir that match regex.
- * A pointer to the head of a linked list is returned.
- * Warning: make sure to call list_free_all() on the returned Node when done.
+ * Returns: number of files found.
+ * Warning: make sure to call list_free_all() on the head Node when done.
  */
-Node *get_regex_files(const char * /*regex*/, const char * /*dir*/);
+extern int get_regex_files(const char * /*regex*/, const char * /*dir*/, Node ** /*head*/);
 
 /*
  * list_files: print a listing of all the files in linked list.
  */
-void list_files(Node * /*head*/);
+extern void list_files(Node * /*head*/);
 
 /*
  * list_strjoin: join all the list elements together.
  * Returns the joined string. Don't forget to free it when done.
  */
-char *list_strjoin(Node * /*head*/, const char * /*sep*/);
+extern char *list_strjoin(Node * /*head*/, const char * /*sep*/);
 
 
 #endif // BMUTIL_H

@@ -29,72 +29,81 @@
 
 /*
  * get_regex_files: get all files in dir that match regex.
- * A pointer to the head of a linked list is returned.
- * Warning: make sure to call list_free_all() on the returned Node when done.
+ * Returns: number of files found.
+ * Warning: make sure to call list_free_all() on the head Node when done.
  */
-Node *get_regex_files(const char *regex, const char *dir)
+int get_regex_files(const char *regex, const char *dir, Node **head)
 {
-    char errbuf[MAX_OUT_LINE];      // for holding error messages by regex.h
+    char errbuf[MAX_OUT_LINE];      /* for holding error messages by regex.h */
     struct dirent *entry;
     DIR *dp;
     int errcode;
-    Node *head = NULL;
+    int count;
 
-    // open db dir
+    /* initialize head and count */
+    *head = NULL;
+    count = 0;
+
+    /* open db dir */
     dp = opendir(dir);
     if (dp == NULL) {
         perror("Error (opendir)");
-        return NULL;
+        return -1;
     }
     
-    // compile regex
+    /* compile regex */
     regex_t preg;
     errcode = regcomp(&preg, regex, REG_EXTENDED);
     if (errcode != 0) {
         regerror(errcode, &preg, errbuf, sizeof errbuf);
         fprintf(stderr, "Error (regcomp): %s\n", errbuf);
-        return NULL;
+        return -1;
     }
 
     Node *current = NULL;
+    int complete = (*(dir+strlen(dir)-1) == '/');
     while ((entry = readdir(dp)) != NULL) {
-        // make sure type is not dir, then do a regex on it
+        /* make sure type is not dir, then do a regex on it */
         struct stat fstat;
-        char *path = bm_strvcat(dir, "/", entry->d_name, NULL);
+        char *path = bm_strvcat(dir, complete ? "" : "/", entry->d_name, NULL);
         if (stat(path, &fstat) != 0) {
             perror("stat");
             free(path);
-            return NULL;
+            return -1;
         }
-        free(path);
         if (! S_ISREG(fstat.st_mode))
-            continue;
+            goto free_path_continue;
 
         errcode = regexec(&preg, entry->d_name, 0, NULL, 0);
         if (errcode == 0) {
-            Node *new = malloc(sizeof (Node));
-            new->data = malloc((strlen(entry->d_name)+1) * sizeof (char));
-            strcpy(new->data, entry->d_name);
+            Node *new = list_node();
+            new->data = path;
             if (current == NULL) {
-                head = current = new;
+                *head = current = new;
             } else {
                 current->next = new;
                 current = new;
             }
+            count++;
         } else if (errcode == REG_NOMATCH) {
-            continue;
+            goto free_path_continue;
         } else {
+            free(path);
             regerror(errcode, &preg, errbuf, sizeof errbuf);
             fprintf(stderr, "Error (regexec): %s\n", errbuf);
-            return NULL;
+            return -1;
         }
+        continue;
+
+    free_path_continue:
+        free(path);
     }
 
     closedir(dp);
     regfree(&preg);
     if (current != NULL)
         current->next = NULL;
-    return head;
+    return count;
 }
 
 

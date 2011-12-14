@@ -25,7 +25,7 @@
  * Returns: may be NULL, if no space can be allocated.
  * Note: remember to call free() on result of this function.
  */
-char *bm_strcat(const char * /*f1*/, const char * /*f2*/);
+extern char *bm_strcat(const char * /*f1*/, const char * /*f2*/);
 
 /*
  * bm_strjoin: concatenates to a string n elements from an array,
@@ -35,7 +35,7 @@ char *bm_strcat(const char * /*f1*/, const char * /*f2*/);
  * Returns: may be NULL, if no space can be allocated.
  * Note: remember to call free() on result of this function.
  */
-char *bm_strjoin(char ** /*arr*/, int /*n*/, const char * /*sep*/, int /*extra*/);
+extern char *bm_strjoin(char ** /*arr*/, int /*n*/, const char * /*sep*/, int /*extra*/);
 
 /*
  * bm_stracat: concatenates to a string n elements from an array.
@@ -44,7 +44,7 @@ char *bm_strjoin(char ** /*arr*/, int /*n*/, const char * /*sep*/, int /*extra*/
  * Returns: may be NULL, if no space can be allocated.
  * Note: remember to call free() on result of this function.
  */
-char *bm_stracat(const char * /*str1*/, char ** /*arr*/, int /*n*/, int /*extra*/);
+extern char *bm_stracat(const char * /*str1*/, char ** /*arr*/, int /*n*/, int /*extra*/);
 
 /*
  * bm_strvcat: concatenates variable amount of strings into a new string.
@@ -52,6 +52,6 @@ char *bm_stracat(const char * /*str1*/, char ** /*arr*/, int /*n*/, int /*extra*
  * Returns: may be NULL, if no space can be allocated.
  * Note: remember to call free() on result of this function.
  */
-char *bm_strvcat(const char * /*f1*/, ...);
+extern char *bm_strvcat(const char * /*f1*/, ...);
 
 #endif // BMSTRING_H

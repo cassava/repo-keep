@@ -18,11 +18,13 @@
 
 #include "common.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 
 void repo_sync(struct arguments *arguments)
 {
     repo_check(arguments);
-    puts("repo_sync()");
+
+    fprintf(stderr, "\n=== THIS FUNCTION HAS NOT BEEN IMPLEMENTED YET! ===\n");
 }
 
