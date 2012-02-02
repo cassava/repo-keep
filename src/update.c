@@ -95,7 +95,7 @@ void repo_add(Arguments *arg)
         if (count > 0) {
             Node *iter;
             char *cmd, *filename;
-            time_t file_time = 0; // TODO: check if this is right
+            time_t filetime = 0; // TODO: check if this is right
 
             printf("Found %d files for: %s\n", count, arg->argv[i]);
 
@@ -109,8 +109,10 @@ void repo_add(Arguments *arg)
                     continue;
                 }
 
-                if (statbuf.st_mtime > file_time)
+                if (statbuf.st_mtime > filetime) {
                     filename = iter->data;
+                    filetime = statbuf.st_mtime;
+                }
             }
 
             /* delete files if we're not soft */
