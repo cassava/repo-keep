@@ -1,6 +1,6 @@
 # Maintainer: Ben Morgan <neembi@googlemail.com>
 pkgname=repo-keep
-pkgver=1.0
+pkgver=1.9.0
 pkgrel=1
 pkgdesc="A supplement to repo-add and repo-remove which simplifies updating local repositories"
 arch=('i686 x86_64')
@@ -11,24 +11,22 @@ source=(https://github.com/downloads/cassava/$pkgname/$pkgname-$pkgver.tar.gz)
 
 build() {
   cd $srcdir/$pkgname-$pkgver
-
-  make
+  ./configure --prefix="$pkgdir/usr" || return 1
+  make || return 1
 }
 
 package() {
   cd $srcdir/$pkgname-$pkgver
 
+  # Install repo program
   make install
 
-  # Install the script
-  install -Dm755 repo-update $pkgdir/usr/bin/repo-update
-
-  # Install the license and other documentation
-  install -d $pkgdir/usr/share/doc/repo-update
-  install -m644 TODO CHANGES $pkgdir/usr/share/doc/repo-update/
+  # Install other documentation
+  install -m644 TODO README NEWS $pkgdir/usr/share/doc/repo-keep/
 
   # Install completion files
   mkdir -p $pkgdir/usr/share/zsh/site-functions/
   install -m644 contrib/zsh_completion $pkgdir/usr/share/zsh/site-functions/_repo
 
 }
+md5sums=('b58b44b27f053acadc12d029478e34cc')
