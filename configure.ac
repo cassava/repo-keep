@@ -2,11 +2,11 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([repo-keep], [1.9.0], [neembi@googlemail.com])
+AC_INIT([repo-keep], [1.9.1], [neembi@googlemail.com])
 AC_CONFIG_AUX_DIR(config)
 
 # Initialize Automake
-AM_INIT_AUTOMAKE(repo-keep, 1.9.0)
+AM_INIT_AUTOMAKE(repo-keep, 1.9.1)
 
 # Checks for programs.
 AC_PROG_CC

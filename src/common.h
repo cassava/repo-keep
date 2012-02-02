@@ -19,8 +19,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define REPO_VERSION    "2.0"
-#define REPO_DATE       "11. November 2011"
+#define REPO_VERSION    "1.9.1"
+#define REPO_DATE       "2. February 2012"
 #define REPO_VERSION_STRING "repo " REPO_VERSION "  (" REPO_DATE ")"
 
 #define ERR_DB        1
