@@ -1,1 +1,2 @@
-doc_DATA = repo.conf ../AUTHORS ../COPYING ../NEWS ../README ../TODO
+EXTRA_DIST = repo.conf
+doc_DATA = repo.conf

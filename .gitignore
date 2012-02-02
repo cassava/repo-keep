@@ -7,6 +7,7 @@ config.status
 configure
 Makefile
 Makefile.in
+*.tar.gz
 src/*.o
 src/repo
 
