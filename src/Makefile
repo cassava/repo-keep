@@ -1,5 +1,8 @@
+# Macros
+
 CC = gcc
 CFLAGS = -Wall -Wextra
+LDFLAGS =
 
 # If we have debug or release mode
 ifdef DEBUG

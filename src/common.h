@@ -39,7 +39,7 @@
 #define SYSTEM_REPO_ADD    "/usr/bin/repo-add"
 
 #define PKG_STRICT_EXT  "-[0-9][a-z0-9._]*-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)$"
-#define PKG_LENIENT_EXT "-[0-9].+-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)$"
+#define PKG_LENIENT_EXT "-[0-9].*-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)$"
 #define PKG_EXT         PKG_LENIENT_EXT
 
 

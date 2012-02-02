@@ -136,7 +136,7 @@ void repo_add(Arguments *arg)
             system(cmd);
             free(cmd);
         } else {
-            fprintf(stderr, "Error: did not find any files to add.");
+            fprintf(stderr, "Error: did not find any files to add.\n");
         }
 
         list_free_all(head);
