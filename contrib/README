@@ -1,0 +1,11 @@
+A brief explanation of the files in this directory:
+
+    `repo-update.sh`: This is version 1.4 of repo-update, the predecessor of
+        repo-keep. This has been tested far more extensively than repo-keep
+        has (because of it's age). If repo-keep does for some reason not work
+        in its add function, you may be interested in trying repo-update.sh.
+        (Actually, the correct behavior is to send a BUG REPORT!)
+
+    `zsh_completion`: In case you use Zsh, you can install the Zsh completion
+        file for repo-keep, which makes using `repo` much easier. Put it in
+        the directory `/usr/share/zsh/site-functions/` as the file `_repo`.

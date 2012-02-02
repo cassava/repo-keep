@@ -1,8 +1,12 @@
 REPO-KEEP README
-=======================================================================
+===============================================================================
 
-REPO-KEEP IS INCOMPLETE AND STILL UNDER DEVELOPMENT. WHEN IT IS DONE,
-THEN THIS PAGE WILL ALSO BE COMPLETELY UPDATED.
+
+
+        REPO-KEEP IS INCOMPLETE AND STILL UNDER DEVELOPMENT!
+    WHEN IT IS DONE, THEN THIS PAGE WILL ALSO BE COMPLETELY UPDATED.
+
+
 
 **Repo-Update** was a supplement to `repo-add` which simplified updating local
 repositories. It was _not_ a suplement to `repo-remove` however.

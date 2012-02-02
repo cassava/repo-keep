@@ -22,6 +22,6 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([regcomp strchr strspn])
 
 # What we want to output
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile doc/Makefile])
 
 AC_OUTPUT
