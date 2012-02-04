@@ -19,44 +19,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define REPO_VERSION    "1.9.2"
-#define REPO_DATE       "4. February 2012"
-#define REPO_VERSION_STRING "repo " REPO_VERSION "  (" REPO_DATE ")"
-
-#define ERR_DB        1
-#define ERR_REPO      2
-#define ERR_PKG       4
-#define ERR_CONFIG    8
-#define ERR_CMD       64
-#define ERR_UNDEF     128
-
-#define ARG_BUFFER      1024
-#define CONFIG_PATH     "~/.repo.conf"
-#define CONFIG_FAIL     0
-#define CONFIG_LEN      2
-
-#define SYSTEM_REPO_REMOVE "/usr/bin/repo-remove"
-#define SYSTEM_REPO_ADD    "/usr/bin/repo-add"
-
-/* use PKG_EXT only! */
-#define PKG_STRICT_EXT  "-[0-9][a-z0-9._]*-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)$"
-#define PKG_LENIENT_EXT "-[0-9].*-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)$"
-#define PKG_EXT         PKG_LENIENT_EXT
-#define PKG_NAME        "[a-zA-Z][a-zA-Z0-9-]*"
-
-
-typedef struct arguments {
-    int soft;               // don't delete files
-    int natural;            // don't compare file creation times
-    int quiet;              // don't ask before doing something
-    char *config;           // configuration file where next two values are stored
-    char *db_name;          // config::database name
-    char *db_dir;           // config::path to db location (with packages)
-    char *db_path;          // db_name and db_path together
-    char *command;          // command to execute (one of: sync, update, add, remove)
-    char *argv[ARG_BUFFER]; // holds pointers to package arguments
-    int argc;
-} Arguments;
+#include "repo.h"
 
 /* in common.c */
 extern int file_readable(const char *);

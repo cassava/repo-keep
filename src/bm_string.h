@@ -54,4 +54,9 @@ extern char *bm_stracat(const char * /*str1*/, char ** /*arr*/, int /*n*/, int /
  */
 extern char *bm_strvcat(const char * /*f1*/, ...);
 
+/*
+ * bm_substr: get a substring from a string.
+ */
+extern char *bm_substr(const char * /*input*/, unsigned /*start_offset*/, unsigned /*end_offset*/);
+
 #endif // BMSTRING_H

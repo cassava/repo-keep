@@ -1,7 +1,7 @@
 /*
  * sync.c
  *
- * Copyright (c) 2011 Ben Morgan <neembi@googlemail.com>
+ * Copyright (c) 2011-2012 Ben Morgan <neembi@googlemail.com>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,12 +16,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include "repo.h"
 #include "common.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 
-void repo_sync(struct arguments *arguments)
+void repo_sync(Arguments *arguments)
 {
     repo_check(arguments);
 

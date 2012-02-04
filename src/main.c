@@ -16,6 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include "repo.h"
 #include "common.h"
 #include "bm_config.h"
 #include "bm_string.h"

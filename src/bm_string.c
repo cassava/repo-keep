@@ -37,6 +37,7 @@ char *bm_strcat(const char *f1, const char *f2)
     return str;
 }
 
+
 char *bm_strjoin(char **arr, int n, const char *delim, int extra)
 {
     char *str, *t;
@@ -65,6 +66,7 @@ char *bm_strjoin(char **arr, int n, const char *delim, int extra)
     return str;
 }
 
+
 char *bm_stracat(const char *f, char **arr, int n, int extra)
 {
     char *str, *t;
@@ -88,6 +90,7 @@ char *bm_stracat(const char *f, char **arr, int n, int extra)
     }
     return str;
 }
+
 
 char *bm_strvcat(const char *f, ...)
 {
@@ -118,4 +121,21 @@ char *bm_strvcat(const char *f, ...)
     }
 
     return str;
+}
+
+
+char *bm_substr(const char *input, unsigned start_offset, unsigned end_offset)
+{
+    if (end_offset - start_offset <= 0)
+        return NULL;
+
+    int size = 1 + end_offset - start_offset;
+    char *result = malloc((size+1) * sizeof (char));
+
+    input += start_offset;
+    *(result+size--) = '\0'; 
+    while (size-- > 0)
+        *(result+size) = *(input+size);
+
+    return result;
 }

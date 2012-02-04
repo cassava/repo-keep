@@ -16,6 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include "repo.h"
 #include "common.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,7 +76,7 @@ int confirm(const char *question, int def, int quiet)
  * repo_check: print an error message and quit in case there is anything
  * wrong with db_name and db_dir given in the configuration file.
  */
-void repo_check(struct arguments *arg)
+void repo_check(Arguments *arg)
 {
     if (!file_readable(arg->db_path)) {
         fprintf(stderr, "Error: cannot open database '%s'\n", arg->db_path);
