@@ -1,5 +1,5 @@
 # Flags to set
-AM_CFLAGS = -Wall -Wextra
+AM_CFLAGS = -std=c99 -Wall -Wextra 
 
 # Target
 bin_PROGRAMS = repo

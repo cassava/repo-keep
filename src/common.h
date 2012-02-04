@@ -1,7 +1,7 @@
 /*
  * common.h
  * 
- * Copyright (c) 2011 Ben Morgan <neembi@googlemail.com>
+ * Copyright (c) 2011-2012 Ben Morgan <neembi@googlemail.com>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,8 +19,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define REPO_VERSION    "1.9.1"
-#define REPO_DATE       "2. February 2012"
+#define REPO_VERSION    "1.9.2"
+#define REPO_DATE       "4. February 2012"
 #define REPO_VERSION_STRING "repo " REPO_VERSION "  (" REPO_DATE ")"
 
 #define ERR_DB        1
@@ -38,9 +38,11 @@
 #define SYSTEM_REPO_REMOVE "/usr/bin/repo-remove"
 #define SYSTEM_REPO_ADD    "/usr/bin/repo-add"
 
+/* use PKG_EXT only! */
 #define PKG_STRICT_EXT  "-[0-9][a-z0-9._]*-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)$"
 #define PKG_LENIENT_EXT "-[0-9].*-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)$"
 #define PKG_EXT         PKG_LENIENT_EXT
+#define PKG_NAME        "[a-zA-Z][a-zA-Z0-9-]*"
 
 
 typedef struct arguments {

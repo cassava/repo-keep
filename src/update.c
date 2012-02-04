@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 
 /*
@@ -57,7 +58,7 @@ void remove_files(Node *head, int quiet)
         for (iter = head; iter != NULL; iter = iter->next) {
             printf("Removing file: %s\n", iter->data);
             if (remove(iter->data) != 0)
-                perror("Error (unlink)");
+                perror("Error (remove)");
         }
     }
 }
@@ -65,9 +66,47 @@ void remove_files(Node *head, int quiet)
 
 void repo_update(Arguments *arg)
 {
+    time_t db_time;
+    struct stat statbuf;
+    int retval;
+    char *pkgregex;
+    Node *head;
+
+    /* check prerequisites */
     repo_check(arg);
 
-    fprintf(stderr, "\n=== THIS FUNCTION HAS NOT BEEN IMPLEMENTED YET! ===\n");
+    /* get age of database */
+    if (stat(arg->db_path, &statbuf) == -1) {
+        perror("Error (stat)");
+        goto error;
+    }
+    db_time = statbuf.st_mtime;
+
+    /* get all files younger than db_time */
+    if ((retval = get_younger_files(db_time, arg->db_dir, &head)) == -1)
+        goto error;
+
+    /* filter all files out that are not packages */
+    pkgregex = bm_strvcat("^", arg->db_dir, PKG_NAME PKG_EXT, NULL);
+    retval = list_filter_destroy(pkgregex, &head);
+    free(pkgregex);
+    if (retval == -1) {
+        goto error;
+    } else if (retval == 0) {
+        printf("Database up-to-date: nothing to do.\n");
+        return;
+    } 
+
+    printf("Found %d packages younger than database:\n", retval);
+    list_files(head, "    ");
+
+    /* free list and return */
+    list_free_all(head);
+    return;
+
+error:
+    fprintf(stderr, "Fatal error: cannot continue, exiting.");
+    exit(1);
 }
 
 
@@ -105,7 +144,7 @@ void repo_add(Arguments *arg)
                 struct stat statbuf;
 
                 if (stat(iter->data, &statbuf) == -1) {
-                    perror("stat");
+                    perror("Error (stat)");
                     continue;
                 }
 
@@ -129,6 +168,7 @@ void repo_add(Arguments *arg)
                     list_insert(&oldest, temp);
                 } 
 
+                printf("Keeping: %s\n", filename);
                 remove_files(oldest, arg->quiet);
                 list_free_nodes(oldest);
             }

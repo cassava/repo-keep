@@ -27,6 +27,10 @@
 #ifndef BMCONFIG_H
 #define BMCONFIG_H
 
+#ifndef LINE_MAX
+#define LINE_MAX 1024
+#endif
+
 struct config_map {
     char *key;
     char *value;

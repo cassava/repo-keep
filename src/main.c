@@ -126,7 +126,7 @@ static void load_config(struct arguments *arguments, char *default_config)
     size_t len;
 
     // read the configuration file
-    printf("Using configuration file: '%s'\n", arguments->config);
+    printf("Using configuration file: %s\n", arguments->config);
     ret = config_parse(arguments->config, configuration, CONFIG_FAIL);
     for (i = 0; i < CONFIG_LEN; i++)
         if (configuration[i].value == NULL) {
