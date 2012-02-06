@@ -47,7 +47,6 @@
 
 typedef struct arguments {
     int soft;               // don't delete files
-    int natural;            // don't compare file creation times
     int quiet;              // don't ask before doing something
     char *config;           // configuration file where next two values are stored
     char *db_name;          // config::database name

@@ -37,13 +37,13 @@ static char doc[] =
     "Commands available:\n"
     "  add <pkgname>    Add the package(s) with <pkgname> to the database by\n"
     "                   finding in the same directory of the database the latest\n"
-    "                   file for that package (by file date and by version number),\n"
+    "                   file for that package (by file modification date),\n"
     "                   deleting the others, and updating the database.\n"
     "  remove <pkgname> Remove the package with <pkgname> from the database, by\n"
-    "                   removing the entry from the database and deleting the\n"
-    "                   files.\n"
-    "  sync             Compare packages in the database to AUR for new versions.\n"
+    "                   removing its entry from the database and deleting the files\n"
+    "                   that belong to it.\n"
     "  update           Same as add, except scan and add changed packages.\n"
+    "  sync             Compare packages in the database to AUR for new versions.\n"
     "\n"
     "NOTE: In all of these cases, <pkgname> is the name of the package, without\n"
     "anything else. For example: pacman, and not pacman-3.5.3-1-i686.pkg.tar.xz";
@@ -51,7 +51,6 @@ static char doc[] =
 static struct argp_option options[] = {
   // long           key  arg       ?  description
     {"soft",        's', NULL,     0, "Don't delete any files (n/a for: sync)", 0},
-    {"natural",     't', NULL,     0, "Don't take package creation time into account", 0},
     {"quiet",       'q', NULL,     0, "Don't confirm file deletion, just do it.", 0},
     {"config",      'c', "CONFIG", 0, "Alternate configuration file", 1},
     { 0, 0, NULL, 0, NULL, 0}
@@ -70,9 +69,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     switch(key) {
         case 's': // soft
             arguments->soft = 1;
-            break;
-        case 't': // natural
-            arguments->natural = 1;
             break;
         case 'q':
             arguments->quiet = 1;
@@ -168,7 +164,6 @@ int main(int argc, char **argv)
 
     // set default values
     arguments.soft = 0;
-    arguments.natural = 0;
     arguments.quiet = 0;
     arguments.config = default_config;
 

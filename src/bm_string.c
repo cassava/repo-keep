@@ -1,7 +1,7 @@
 /*
  * bm_string.c
  * 
- * Copyright (c) 2011 Ben Morgan <neembi@googlemail.com>
+ * Copyright (c) 2011-2012 Ben Morgan <neembi@googlemail.com>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -18,6 +18,7 @@
 
 #include "bm_string.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -126,14 +127,17 @@ char *bm_strvcat(const char *f, ...)
 
 char *bm_substr(const char *input, unsigned start_offset, unsigned end_offset)
 {
-    if (end_offset - start_offset <= 0)
-        return NULL;
+    size_t size;
+    char *result;
 
-    int size = 1 + end_offset - start_offset;
-    char *result = malloc((size+1) * sizeof (char));
+    assert(end_offset > start_offset);
+    assert(strlen(input) > end_offset);
+
+    size = end_offset - start_offset;
+    result = malloc((size+1) * sizeof (char));
 
     input += start_offset;
-    *(result+size--) = '\0'; 
+    *(result + size) = '\0'; 
     while (size-- > 0)
         *(result+size) = *(input+size);
 
