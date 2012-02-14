@@ -55,3 +55,5 @@ struct config_map {
 extern int config_parse(const char *path, struct config_map tab[], int fail);
 
 #endif // BMCONFIG_H
+
+/* vim: set cin ts=4 sw=4 et: */

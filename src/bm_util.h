@@ -71,3 +71,5 @@ extern char *list_strjoin(Node * /*head*/, const char * /*sep*/);
 
 
 #endif // BMUTIL_H
+
+/* vim: set cin ts=4 sw=4 et: */

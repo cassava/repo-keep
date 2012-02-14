@@ -17,14 +17,17 @@
  */
 
 #include "repo.h"
-#include "common.h"
+#include "actions.h"
 #include "bm_config.h"
 #include "bm_string.h"
 
+#include <argp.h>
+#include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <argp.h>
+
 
 // Variables and constants for argp argument parsing.
 const char *argp_program_version = REPO_VERSION_STRING;
@@ -35,6 +38,7 @@ static char doc[] =
     "Manage local pacman repositories.\n"
     "\n"
     "Commands available:\n"
+    /* It's also possible to only give the first letter of the command. */
     "  add <pkgname>    Add the package(s) with <pkgname> to the database by\n"
     "                   finding in the same directory of the database the latest\n"
     "                   file for that package (by file modification date),\n"
@@ -43,7 +47,8 @@ static char doc[] =
     "                   removing its entry from the database and deleting the files\n"
     "                   that belong to it.\n"
     "  update           Same as add, except scan and add changed packages.\n"
-    "  sync             Compare packages in the database to AUR for new versions.\n"
+    "  synchronize      Compare packages in the database to AUR for new versions.\n"
+    "  list             List all packages that are found registered in the database.\n"
     "\n"
     "NOTE: In all of these cases, <pkgname> is the name of the package, without\n"
     "anything else. For example: pacman, and not pacman-3.5.3-1-i686.pkg.tar.xz";
@@ -77,10 +82,19 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
             arguments->config = arg;
             break;
         case ARGP_KEY_ARG:
-            #define _argeq(S)  !strcmp(arg, S)
+            #define _argeq(S)  bm_isprefix(arg, S)
+            #define _acmd  arguments->command
             if (state->arg_num == 0) {
-                if (_argeq("add") || _argeq("update") || _argeq("sync") || _argeq("remove"))
-                    arguments->command = arg;
+                if (_argeq("add"))
+                    _acmd = action_add;
+                else if (_argeq("remove"))
+                    _acmd = action_remove;
+                else if (_argeq("list"))
+                    _acmd = action_list;
+                else if (_argeq("update"))
+                    _acmd = action_update;
+                else if (_argeq("synchronize"))
+                    _acmd = action_sync;
                 else
                     argp_usage(state);
             } else {
@@ -90,13 +104,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         case ARGP_KEY_END:
             arguments->argc = state->arg_num - 1;
             // Make sure that the amount of arguments is correct
-            if ( (state->arg_num < 1) ||
-                 ( (!strcmp(arguments->command, "update")
-                   || !strcmp(arguments->command, "sync"))
-                   && (state->arg_num > 1) ) ||
-                 ( (!strcmp(arguments->command, "add")
-                   || !strcmp(arguments->command, "remove"))
-                   && (state->arg_num == 1) ) )
+            if (  (state->arg_num < 1)
+               || (state->arg_num > 1 && (_acmd == action_update || _acmd == action_sync || _acmd == action_list))
+               || (state->arg_num == 1 && (_acmd == action_add || _acmd == action_remove)))
                 argp_usage(state);
             break;
         default:
@@ -137,7 +147,7 @@ static void load_config(struct arguments *arguments, char *default_config)
                         "       with at least the following lines:\n"
                         "           db_name = name_of_database.db.tar.gz\n"
                         "           db_dir  = /path/to/database/\n", default_config);
-        exit(ERR_CONFIG);
+        exit(ERR_DEFAULT);
     }
 
     arguments->db_dir = configuration[0].value;
@@ -161,11 +171,13 @@ int main(int argc, char **argv)
     struct arguments arguments;
     struct argp argp = {options, parse_opt, args_doc, doc, NULL, NULL, NULL};
     char *default_config = tildestr(CONFIG_PATH);
+    int retval = OK;
 
     // set default values
     arguments.soft = 0;
     arguments.quiet = 0;
     arguments.config = default_config;
+    arguments.command = action_nop;
 
     // parse the command line arguments and load config file
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
@@ -173,23 +185,26 @@ int main(int argc, char **argv)
     printf("Using database: %s\n", arguments.db_path);
 
     // perform the given action by switching on first character
-    switch (*arguments.command) {
-        case 'a':
-            repo_add(&arguments);
+    switch (arguments.command) {
+        case action_add:
+            retval |= repo_add(&arguments);
             break;
-        case 'u':
-            repo_update(&arguments);
+        case action_update:
+            retval |= repo_update(&arguments);
             break;
-        case 's':
-            repo_sync(&arguments);
+        case action_sync:
+            retval |= repo_sync(&arguments);
             break;
-        case 'r':
-            repo_remove(&arguments);
+        case action_remove:
+            retval |= repo_remove(&arguments);
+            break;
+        case action_list:
+            retval |= repo_list(&arguments);
             break;
         default:
-            // should never happen
-            fprintf(stderr, "Error: this is an error that should never happen!\n");
-            exit(ERR_UNDEF);
+            // the default case should never occur
+            fprintf(stderr, "Error (main.c): The impossible just happened! Please file a bug report.\n");
+            retval |= ERR_UNDEF;
     }
 
     // finally
@@ -198,7 +213,7 @@ int main(int argc, char **argv)
     free(arguments.db_dir);
     free(arguments.db_path);
 
-    return 0;
+    return retval;
 }
 
-// vim: set ts=4 sw=4 et:
+/* vim: set cin ts=4 sw=4 et: */

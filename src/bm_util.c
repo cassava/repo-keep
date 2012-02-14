@@ -274,3 +274,5 @@ char *list_strjoin(Node *head, const char *delim)
     }
     return str;
 }
+
+/* vim: set cin ts=4 sw=4 et: */

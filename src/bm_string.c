@@ -20,8 +20,9 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdarg.h>
+#include <stdbool.h>
+#include <string.h>
 
 
 char *bm_strcat(const char *f1, const char *f2)
@@ -100,6 +101,8 @@ char *bm_strvcat(const char *f, ...)
     const char *s;
     size_t len = 1;
 
+    assert(f != NULL);
+
     // determine length of final string
     va_start(ap, f); s=f;
     while (s != NULL) {
@@ -143,3 +146,17 @@ char *bm_substr(const char *input, unsigned start_offset, unsigned end_offset)
 
     return result;
 }
+
+
+bool bm_isprefix(const char *child, const char *parent)
+{
+    assert(child != NULL);
+    assert(parent != NULL);
+
+    while (*child != '\0')
+        if (*child++ != *parent++)
+            return false;
+    return true;
+}
+
+/* vim: set cin ts=4 sw=4 et: */

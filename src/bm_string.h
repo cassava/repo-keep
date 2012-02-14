@@ -20,6 +20,8 @@
 #ifndef BMSTRING_H
 #define BMSTRING_H
 
+#include <stdbool.h>
+
 /*
  * bm_strcat: concatenates two strings.
  * Returns: may be NULL, if no space can be allocated.
@@ -59,4 +61,18 @@ extern char *bm_strvcat(const char * /*f1*/, ...);
  */
 extern char *bm_substr(const char * /*input*/, unsigned /*start_offset*/, unsigned /*end_offset*/);
 
+/*
+ * bm_isprefix: compare two strings, return true if first is prefix of second.
+ * Behaviour is undefined if either of the parameters are NULL.
+ *
+ * @param *child: child must be a prefix of parent. Child should be not be
+ *                NULL. If strlen(child) == 0, then true will be returned.
+ * @param *parent: child is compared to parent. Parent should not be NULL.
+ * @returns: If child is at any stage different to parent, then false is
+ *           returned, otherwise true.
+ */
+extern bool bm_isprefix(const char * /*child*/, const char * /*parent*/);
+
 #endif // BMSTRING_H
+
+/* vim: set cin ts=4 sw=4 et: */

@@ -143,3 +143,5 @@ int config_parse(const char *path, struct config_map tab[], int fail)
     return 0;
 }
 
+
+/* vim: set cin ts=4 sw=4 et: */
