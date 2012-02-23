@@ -49,12 +49,28 @@ bool confirm(const char *question, int def, int quiet);
 
 int repo_list(Arguments *arg)
 {
+    Node *head;
+    int count;
+    int retval = OK;
+
     /* check prerequisites */
     if (!repo_check(arg))
         return ERR_SYSTEM;
 
-    // TODO: Implement me!
-    fprintf(stderr, "===== Function not implemented! =====\n");
+    count = get_regex_files(".*" PKG_EXT, arg->db_dir, &head);
+    if (count < 0) {
+        fprintf(stderr, "Error: failed to retrieve files.\n");
+        retval |= ERR_SYSTEM;
+    } else if (count > 0) {
+        for (Node *iter = head; iter != NULL; iter = iter->next) {
+            char *name = pkg_name(iter->data);
+            assert(name != NULL);
+            printf("  %s\n", name);
+            free(name);
+        }
+    }
+
+    list_free_all(head);
     return ERR_UNDEF;
 }
 
@@ -66,7 +82,7 @@ int repo_add(Arguments *arg)
     /* check prerequisites */
     if (!repo_check(arg))
         return ERR_SYSTEM;
-    
+
     /* iterate through packages to add */
     for (int i = 0; i < arg->argc; i++)
         retval |= add_package(arg->argv[i], arg);
@@ -149,7 +165,7 @@ int repo_update(Arguments *arg)
     } else if (retval == 0) {
         printf("Database up-to-date: nothing to do.\n");
         return OK;
-    } 
+    }
 
     printf("Found %d packages younger than database:\n", retval);
     list_files(head, "    ");
@@ -251,11 +267,11 @@ int add_package(const char *pkg_name, Arguments *arg)
             for (Node *iter = head; iter != NULL; iter = iter->next) {
                 if (iter->data == filename)
                     continue;
-                
+
                 Node *temp = list_node();
                 temp->data = iter->data;
                 list_insert(&oldest, temp);
-            } 
+            }
 
             printf("Keeping: %s\n", filename);
             remove_files(oldest, arg->quiet);
@@ -374,7 +390,7 @@ bool file_readable(const char *file)
 bool confirm(const char *question, int def, int quiet)
 {
     char c = ' ';
-    
+
     if (quiet) {
         printf("%s [%s] .\n", question, def ? "Y/n" : "y/N");
     } else {

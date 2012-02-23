@@ -1,6 +1,16 @@
 #compdef repo
 
-local config repo_dir packages
+local config repo_dir packages repo_commands
+
+repo_commands=(
+    add:"add package(s) to the database"
+    list:"list packages available in database directory"
+    remove:"remove and delete package(s) from the database"
+    sync:"compare local database packages to those in AUR"
+    update:"scan and automatically add packages to the database"
+)
+
+_describe -t command "mpc commands" mpc_cmds
 
 # This completion example relies on the .repo.conf configuration file
 # in the home directory. So don't run this completion file at all if

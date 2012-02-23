@@ -47,6 +47,11 @@ extern int get_regex_files(const char * /*regex*/, const char * /*dir*/, Node **
 extern int get_younger_files(const time_t /*age*/, const char * /*dir*/, Node ** /*head*/);
 
 /*
+ * TODO: Implement me!
+ */
+extern void print_columns(char ** /*array*/);
+
+/*
  * list_filter_destroy: filter nodes in head with regex; only nodes matching regex are allowed.
  * Returns: count of nodes that match regex, -1 if error.
  * Warning: nodes that do NOT match regex are completely freed: node and data.

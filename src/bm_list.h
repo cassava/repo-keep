@@ -88,6 +88,11 @@ extern void list_free_all(struct list_node * /*head*/);
  */
 extern void list_free_nodes(struct list_node * /*head*/);
 
+/*
+ * TODO: Implement me!
+ */
+extern char **list_to_array(struct list_node *);
+
 #endif /* BMLIST_H */
 
 /* vim: set cin ts=4 sw=4 et: */

@@ -29,7 +29,7 @@
 
 /*
  * get_regex_files: get all files in dir that match regex.
- * Returns: number of files found.
+ * Returns: number of files found, -1 if error.
  * Warning: make sure to call list_free_all() on the head Node when done.
  */
 int get_regex_files(const char *regex, const char *dir, Node **head)
