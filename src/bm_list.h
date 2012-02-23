@@ -33,12 +33,16 @@
 
 /*
  * list_node: create a new list node using malloc.
+ *
+ * @returns: pointer to an allocated list node.
  */
 extern struct list_node *list_node();
 
 /*
  * list_empty: returns 1 if list is empty, 0 otherwise.
- * This ought to be implemented as a macro.
+ *
+ * @param *head: pointer to the head of the list.
+ * @returns: 1 if list is empty, 0 otherwise.
  */
 extern int list_empty(struct list_node * /*head*/);
 
@@ -46,18 +50,24 @@ extern int list_empty(struct list_node * /*head*/);
  * list_length: returns the length of the list, 0 if empty.
  * Calling this function should be avoided, as it works in
  * time O(n).
+ *
+ * @param *head: pointer to the head of the list.
+ * @returns: length of the list, 0 if empty.
  */
 extern int list_length(struct list_node * /*head*/);
 
 /*
  * list_push: push a node or a list of nodes onto the top of a list.
- * Returns new head of the list, which is node.
+ *
+ * @param *head: pointer to the head of the list.
+ * @param *node: pointer to node or list of nodes to push ontop of head.
+ * @returns: pointer to new head of the list, which is node.
  */
 extern struct list_node *list_push(struct list_node * /*head*/, struct list_node * /*node*/);
 
 /*
  * list_pop: pop a node from the top of the list into data.
- * Returns new head of the list.
+ * @returns: pointer to new head of the list.
  */
 extern struct list_node *list_pop(struct list_node * /*head*/, void ** /*data*/);
 
