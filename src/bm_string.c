@@ -103,7 +103,7 @@ char *bm_strvcat(const char *f, ...)
 
     assert(f != NULL);
 
-    // determine length of final string
+    /* determine length of final string */
     va_start(ap, f); s=f;
     while (s != NULL) {
         len += strlen(s);
@@ -111,11 +111,11 @@ char *bm_strvcat(const char *f, ...)
     }
     va_end(ap);
     
-    // create new string
+    /* create new string */
     str = t = malloc(len * sizeof (char));
     if (str != NULL) {
         va_start(ap, f);
-        s=f; // we start with f
+        s=f; /* we start with f */
         while (s != NULL) {
             strcpy(t, s);
             t += strlen(s);

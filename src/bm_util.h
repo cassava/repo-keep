@@ -20,16 +20,8 @@
 #ifndef BMUTIL_H
 #define BMUTIL_H
 
+#include "bm_list_str.h"
 #include <sys/types.h>
-
-#define MAX_OUT_LINE 80
-
-
-/* See bm_list.h for an explanation on this. */
-typedef struct list_node {
-    char *data;
-    struct list_node *next;
-} Node;
 
 
 /*
@@ -37,44 +29,20 @@ typedef struct list_node {
  * Returns: number of files found.
  * Warning: make sure to call list_free_all() on the head Node when done.
  */
-extern int get_regex_files(const char * /*regex*/, const char * /*dir*/, Node ** /*head*/);
+extern int get_regex_files(const char * /*regex*/, const char * /*dir*/, NodeStr ** /*head*/);
 
 /*
  * get_younger_files: get all files in dir that are younger than age.
  * Returns: number of files found.
  * Warning: make sure to call list_free_all() on the head Node when done.
  */
-extern int get_younger_files(const time_t /*age*/, const char * /*dir*/, Node ** /*head*/);
+extern int get_younger_files(const time_t /*age*/, const char * /*dir*/, NodeStr ** /*head*/);
 
 /*
  * TODO: Implement me!
  */
 extern void print_columns(char ** /*array*/);
 
-/*
- * list_filter_destroy: filter nodes in head with regex; only nodes matching regex are allowed.
- * Returns: count of nodes that match regex, -1 if error.
- * Warning: nodes that do NOT match regex are completely freed: node and data.
- */
-extern int list_filter_destroy(const char * /*regex*/, Node ** /*head*/);
-
-/*
- * list_files: print a listing of all the files in linked list.
- */
-extern void list_files(Node * /*head*/, char * /*prefix*/);
-
-/*
- * list_search: return Node containing data, or NULL.
- */
-extern Node *list_search(char * /*search*/, Node * /*head*/);
-
-/*
- * list_strjoin: join all the list elements together.
- * Returns the joined string. Don't forget to free it when done.
- */
-extern char *list_strjoin(Node * /*head*/, const char * /*sep*/);
-
-
-#endif // BMUTIL_H
+#endif /* BMUTIL_H */
 
 /* vim: set cin ts=4 sw=4 et: */

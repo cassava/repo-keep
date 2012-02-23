@@ -18,12 +18,14 @@
 
 #include "bm_util.h"
 #include "bm_list.h"
+#include "bm_list_str.h"
 #include "bm_string.h"
+
+#include <dirent.h>
 #include <regex.h>
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <dirent.h>
+#include <string.h>
 #include <sys/stat.h>
 
 
@@ -31,14 +33,17 @@
  * get_regex_files: get all files in dir that match regex.
  * Returns: number of files found, -1 if error.
  * Warning: make sure to call list_free_all() on the head Node when done.
+ *
+ * TODO: This can be implemented much more elegantly.
  */
-int get_regex_files(const char *regex, const char *dir, Node **head)
+int get_regex_files(const char *regex, const char *dir, NodeStr **head)
 {
-    char errbuf[MAX_OUT_LINE];      /* for holding error messages by regex.h */
+    char errbuf[MAX_ERROR_LINE_LENGTH];      /* for holding error messages by regex.h */
     struct dirent *entry;
+    int errcode, count, complete;
+    NodeStr *current;
+    regex_t preg;
     DIR *dp;
-    int errcode;
-    int count;
 
     /* initialize head and count */
     *head = NULL;
@@ -50,9 +55,8 @@ int get_regex_files(const char *regex, const char *dir, Node **head)
         perror("Error (opendir)");
         return -1;
     }
-    
+
     /* compile regex */
-    regex_t preg;
     errcode = regcomp(&preg, regex, REG_EXTENDED);
     if (errcode != 0) {
         regerror(errcode, &preg, errbuf, sizeof errbuf);
@@ -60,8 +64,8 @@ int get_regex_files(const char *regex, const char *dir, Node **head)
         return -1;
     }
 
-    Node *current = NULL;
-    int complete = (*(dir+strlen(dir)-1) == '/');
+    current = NULL;
+    complete = (*(dir+strlen(dir)-1) == '/');
     while ((entry = readdir(dp)) != NULL) {
         /* make sure type is not dir, then do a regex on it */
         struct stat fstat;
@@ -76,7 +80,7 @@ int get_regex_files(const char *regex, const char *dir, Node **head)
 
         errcode = regexec(&preg, entry->d_name, 0, NULL, 0);
         if (errcode == 0) {
-            Node *new = list_node();
+            NodeStr *new = list_node();
             new->data = path;
             if (current == NULL) {
                 *head = current = new;
@@ -111,11 +115,12 @@ int get_regex_files(const char *regex, const char *dir, Node **head)
  * Returns: number of files found.
  * Warning: make sure to call list_free_all() on the head Node when done.
  */
-int get_younger_files(const time_t age, const char *dir, Node **head)
+int get_younger_files(const time_t age, const char *dir, NodeStr **head)
 {
     struct dirent *entry;
     DIR *dp;
-    int count;
+    int count, complete;
+    NodeStr *current;
 
     /* initialize head and count */
     *head = NULL;
@@ -127,9 +132,9 @@ int get_younger_files(const time_t age, const char *dir, Node **head)
         perror("Error (opendir)");
         return -1;
     }
-    
-    Node *current = NULL;
-    int complete = (*(dir+strlen(dir)-1) == '/');
+
+    current = NULL;
+    complete = (*(dir+strlen(dir)-1) == '/');
     while ((entry = readdir(dp)) != NULL) {
         /* make sure type is not dir, then compare ages */
         struct stat fstat;
@@ -141,7 +146,7 @@ int get_younger_files(const time_t age, const char *dir, Node **head)
         }
 
         if (S_ISREG(fstat.st_mode) && fstat.st_mtime > age) {
-            Node *new = list_node();
+            NodeStr *new = list_node();
             new->data = path;
             if (current == NULL) {
                 *head = current = new;
@@ -160,119 +165,6 @@ int get_younger_files(const time_t age, const char *dir, Node **head)
     if (current != NULL)
         current->next = NULL;
     return count;
-}
-
-
-/*
- * list_filter_destroy: filter nodes in head with regex; only nodes matching regex are allowed.
- * Returns: count of nodes that match regex, -1 if error.
- * Warning: nodes that do NOT match regex are completely freed: node and data.
- */
-int list_filter_destroy(const char *regex, Node **head)
-{
-    char errbuf[MAX_OUT_LINE];      /* for holding error messages by regex.h */
-    int errcode;
-    int count = 0;
-
-    /* compile regex */
-    regex_t preg;
-    errcode = regcomp(&preg, regex, REG_EXTENDED);
-    if (errcode != 0) {
-        regerror(errcode, &preg, errbuf, sizeof errbuf);
-        fprintf(stderr, "Error (regcomp): %s\n", errbuf);
-        return -1;
-    }
-
-    Node *current = NULL;
-    Node *iter = *head;
-    while (iter != NULL) {
-        errcode = regexec(&preg, iter->data, 0, NULL, 0);
-        if (errcode == 0) {
-            if (current == NULL) {
-                *head = current = iter;
-            } else {
-                current->next = iter;
-                current = iter;
-            }
-            count++;
-            iter = iter->next;
-        } else if (errcode == REG_NOMATCH) {
-            Node *temp = iter->next;
-            free(iter->data);
-            free(iter);
-            iter = temp;
-        } else {
-            regerror(errcode, &preg, errbuf, sizeof errbuf);
-            fprintf(stderr, "Error (regexec): %s\n", errbuf);
-            return -1;
-        }
-    }
-
-    regfree(&preg);
-    if (current != NULL)
-        current->next = NULL;
-    return count;
-}
-
-
-/*
- * list_files: print a listing of all the files in linked list.
- */
-void list_files(Node *head, char *prefix)
-{
-    for (Node *iter = head; iter != NULL; iter = iter->next) {
-        fputs(prefix, stdout);
-        puts(iter->data);
-    }
-}
-
-
-/*
- * list_search: return Node containing data, or NULL.
- */
-Node *list_search(char *search, Node *head)
-{
-    for (Node *iter = head; iter != NULL; iter = iter->next)
-        if (strcmp(iter->data, search) == 0)
-            return iter;
-
-    return NULL;
-}
-
-
-/*
- * list_strjoin: join all the list elements together.
- * Returns the joined string. Don't forget to free it when done.
- */
-char *list_strjoin(Node *head, const char *delim)
-{
-    char *str, *t;
-    const char *s;
-    size_t len = 1;
-    int m, n;
-    Node *node;
-
-    n = list_length(head);
-    if (n == 0)
-        return NULL;
-
-    m = strlen(delim);
-    len += (n-1) * m;
-    for (node = head; node != NULL; node = node->next)
-        len += strlen(node->data);
-
-    t = str = malloc(len * sizeof (char));
-    for (node = head; node != NULL; node = node->next, n--) {
-        s = node->data;
-        while ((*t = *s) != '\0')
-            t++, s++;
-        if (n > 1) {
-            s = delim;
-            while ((*t = *s) != '\0')
-                t++, s++;
-        }
-    }
-    return str;
 }
 
 /* vim: set cin ts=4 sw=4 et: */

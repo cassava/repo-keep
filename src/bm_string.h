@@ -73,6 +73,5 @@ extern char *bm_substr(const char * /*input*/, unsigned /*start_offset*/, unsign
  */
 extern bool bm_isprefix(const char * /*child*/, const char * /*parent*/);
 
-#endif // BMSTRING_H
-
+#endif /* BMSTRING_H */
 /* vim: set cin ts=4 sw=4 et: */

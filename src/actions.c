@@ -20,9 +20,10 @@
 
 #include "repo.h"
 #include "actions.h"
+#include "bm_list.h"
+#include "bm_list_str.h"
 #include "bm_string.h"
 #include "bm_util.h"
-#include "bm_list.h"
 
 #include <assert.h>
 #include <dirent.h>
@@ -37,7 +38,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-int remove_files(Node *head, int quiet);
+int remove_files(NodeStr *head, int quiet);
 int add_package(const char *pkg_name, Arguments *arg);
 int exec_system(const char *command);
 char *pkg_name(const char *input);
@@ -49,7 +50,7 @@ bool confirm(const char *question, int def, int quiet);
 
 int repo_list(Arguments *arg)
 {
-    Node *head;
+    NodeStr *head;
     int count;
     int retval = OK;
 
@@ -62,7 +63,7 @@ int repo_list(Arguments *arg)
         fprintf(stderr, "Error: failed to retrieve files.\n");
         retval |= ERR_SYSTEM;
     } else if (count > 0) {
-        for (Node *iter = head; iter != NULL; iter = iter->next) {
+        for (NodeStr *iter = head; iter != NULL; iter = iter->next) {
             char *name = pkg_name(iter->data);
             assert(name != NULL);
             printf("  %s\n", name);
@@ -70,7 +71,7 @@ int repo_list(Arguments *arg)
         }
     }
 
-    list_free_all(head);
+    list_free_all(&head);
     return ERR_UNDEF;
 }
 
@@ -103,7 +104,7 @@ int repo_remove(Arguments *arg)
     /* if files should be removed, remove files */
     if (!arg->soft) {
         char *regex;
-        Node *head;  /* head of a linked list of filenames */
+        NodeStr *head;  /* head of a linked list of filenames */
         int count;
 
         argstr = bm_strjoin(arg->argv, arg->argc, "|", 0);
@@ -114,12 +115,12 @@ int repo_remove(Arguments *arg)
 
         if (count == 0) {
             puts("No packages (files) found; nothing to remove.");
-            list_free_all(head);
+            list_free_all(&head);
             return retval;
         }
 
         remove_files(head, arg->quiet);
-        list_free_all(head);
+        list_free_all(&head);
     }
 
     /* remove entry from database */
@@ -138,7 +139,7 @@ int repo_update(Arguments *arg)
 {
     time_t db_time;
     int retval = OK;
-    Node *head;
+    NodeStr *head;
 
     /* check prerequisites */
     if (!repo_check(arg))
@@ -158,7 +159,7 @@ int repo_update(Arguments *arg)
 
     /* filter all files out that are not packages */
     char *pkgregex = bm_strvcat("^", arg->db_dir, PKG_NAME PKG_EXT, NULL);
-    retval = list_filter_destroy(pkgregex, &head);
+    retval = list_filter_destroy(&head, pkgregex);
     free(pkgregex);
     if (retval == -1) {
         goto error;
@@ -168,25 +169,22 @@ int repo_update(Arguments *arg)
     }
 
     printf("Found %d packages younger than database:\n", retval);
-    list_files(head, "    ");
+    list_println(head, "    ");
     printf("\n");
 
     /* add packages */
-    Node *short_head = NULL;
-    for (Node *iter = head; iter != NULL; iter = iter->next) {
+    NodeStr *short_head = NULL;
+    for (NodeStr *iter = head; iter != NULL; iter = iter->next) {
         char *name = pkg_name(iter->data);
-        if (name != NULL && list_search(name, short_head) == NULL) {
-            Node *temp = list_node();
-            temp->data = name;
-            list_insert(&head, temp);
-
+        if (name != NULL && list_search(short_head, name) == NULL) {
+            list_push(&head, name);
             add_package(name, arg);
         }
     }
 
     /* free list and return */
-    list_free_all(short_head);
-    list_free_all(head);
+    list_free_all(&short_head);
+    list_free_all(&head);
     return OK;
 
 error:
@@ -228,7 +226,7 @@ int add_package(const char *pkg_name, Arguments *arg)
 {
     int retval = OK;
     char *regex;
-    Node *head;
+    NodeStr *head;
     int count;
 
     regex = bm_strvcat("^(", pkg_name, ")", PKG_EXT, NULL);
@@ -244,7 +242,7 @@ int add_package(const char *pkg_name, Arguments *arg)
 
         /* get youngest file */
         filename = NULL;
-        for (Node *iter = head; iter != NULL; iter = iter->next) {
+        for (NodeStr *iter = head; iter != NULL; iter = iter->next) {
             struct stat statbuf;
 
             if (stat(iter->data, &statbuf) == -1) {
@@ -262,20 +260,18 @@ int add_package(const char *pkg_name, Arguments *arg)
         /* delete files if we're not soft */
         if (count > 1 && !arg->soft) {
             /* put oldest files into a list */
-            Node *oldest = NULL;
+            NodeStr *oldest = NULL;
 
-            for (Node *iter = head; iter != NULL; iter = iter->next) {
+            for (NodeStr *iter = head; iter != NULL; iter = iter->next) {
                 if (iter->data == filename)
                     continue;
 
-                Node *temp = list_node();
-                temp->data = iter->data;
-                list_insert(&oldest, temp);
+                list_push(&oldest, iter->data);
             }
 
             printf("Keeping: %s\n", filename);
             remove_files(oldest, arg->quiet);
-            list_free_nodes(oldest);
+            list_free_nodes(&oldest);
         }
 
         cmd = bm_strvcat(SYSTEM_REPO_ADD, " ", arg->db_path, " ", filename, NULL);
@@ -286,7 +282,7 @@ int add_package(const char *pkg_name, Arguments *arg)
         retval |= ERR_DEFAULT;
     }
 
-    list_free_all(head);
+    list_free_all(&head);
     return retval;
 }
 
@@ -294,25 +290,23 @@ int add_package(const char *pkg_name, Arguments *arg)
 /*
  * remove_files: confirm the removal of list of files, and remove them.
  */
-int remove_files(Node *head, int quiet)
+int remove_files(NodeStr *head, int quiet)
 {
-    Node *names, *iter;
+    NodeStr *names, *iter;
     char *args, *mesg;
     int retval = OK;
 
     /* transform list head into only filenames */
     names = NULL;
     for (iter = head; iter != NULL; iter = iter->next) {
-        Node *temp = list_node();
-        temp->data = basename(iter->data);
-        list_insert(&names, temp);
+        list_push(&names, basename(iter->data));
     }
 
     /* use names list to create a question */ 
     args = list_strjoin(names, "\n              ");
     mesg = bm_strvcat("Delete files: ", args, "?", NULL);
     free(args);
-    list_free_nodes(names);
+    list_free_nodes(&names);
 
     /* ask if user wants to delete all the files and do it */
     if (confirm(mesg, 1, quiet)) {
@@ -336,7 +330,7 @@ int remove_files(Node *head, int quiet)
 char *pkg_name(const char *input)
 {
     const char *regex = "^(/.*/)?(" PKG_NAME ")" PKG_EXT;
-    char errbuf[MAX_OUT_LINE];      /* for holding error messages by regex.h */
+    char errbuf[MAX_ERROR_LINE_LENGTH];      /* for holding error messages by regex.h */
     int errcode;
 
     /* compile regex */
