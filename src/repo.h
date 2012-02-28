@@ -41,7 +41,7 @@
 #define PKG_STRICT_EXT  "-[0-9][a-z0-9._]*-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)$"
 #define PKG_LENIENT_EXT "-[0-9].*-[0-9]+-(any|i686|x86_64).pkg.tar.(gz|bz2|xz)$"
 #define PKG_EXT         PKG_LENIENT_EXT
-#define PKG_NAME        "[a-zA-Z][a-zA-Z0-9-]*"
+#define PKG_NAME        "[a-zA-Z][a-zA-Z0-9_-]*"
 
 /* Repo can execute a single command, which is one of the following. */
 typedef enum action_command {
