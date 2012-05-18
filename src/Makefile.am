@@ -6,3 +6,4 @@ AM_CFLAGS = -std=c99 -Wall -Wextra -pedantic
 bin_PROGRAMS = repo
 repo_SOURCES = repo.h main.c \
                actions.h actions.c
+repo_LDADD = cassava/libcassava.a

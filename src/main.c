@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cassava/config.h"
+#include "cassava/config_kv.h"
 #include "cassava/string.h"
 
 // Variables and constants for argp argument parsing.
