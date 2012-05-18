@@ -1,12 +1,12 @@
 /*
  * main.c
- * 
+ *
  * Copyright (c) 2011-2012 Ben Morgan <neembi@googlemail.com>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -69,6 +69,8 @@ static struct config_map configuration[] = {
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
+#define _argeq(S)  bm_isprefix(arg, S)
+#define _acmd  arguments->command
     struct arguments *arguments = state->input;
 
     switch(key) {
@@ -82,8 +84,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
             arguments->config = arg;
             break;
         case ARGP_KEY_ARG:
-            #define _argeq(S)  bm_isprefix(arg, S)
-            #define _acmd  arguments->command
             if (state->arg_num == 0) {
                 if (_argeq("add"))
                     _acmd = action_add;
@@ -114,12 +114,14 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     }
 
     return 0;
+#undef _argeq
+#undef _acmd
 }
 
 static char *tildestr(char *line)
 {
     char *home;
-    
+
     if (*line == '~') {
         home = getenv("HOME");
         return bm_strcat(home, line+1);

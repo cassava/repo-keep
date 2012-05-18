@@ -2,13 +2,13 @@
  * actions.c
  * Includes the code for all the actions:
  *   add, remove, list, update, sync.
- * 
+ *
  * Copyright (c) 2011-2012 Ben Morgan <neembi@googlemail.com>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -17,13 +17,6 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-
-#include "repo.h"
-#include "actions.h"
-#include "bm_list.h"
-#include "bm_list_str.h"
-#include "bm_string.h"
-#include "bm_util.h"
 
 #include <assert.h>
 #include <dirent.h>
@@ -38,13 +31,22 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-int remove_files(NodeStr *head, int quiet);
-int add_package(const char *pkg_name, Arguments *arg);
-int exec_system(const char *command);
-char *pkg_name(const char *input);
-bool repo_check(Arguments *arg);
-bool file_readable(const char *file);
-bool confirm(const char *question, int def, int quiet);
+#include "repo.h"
+#include "actions.h"
+#include "debug.h"
+#include "bm_list.h"
+#include "bm_list_str.h"
+#include "bm_string.h"
+#include "bm_util.h"
+
+
+static int remove_files(NodeStr *head, int quiet);
+static int add_package(const char *pkg_name, Arguments *arg);
+static int exec_system(const char *command);
+static char *pkg_name(const char *input);
+static bool repo_check(Arguments *arg);
+static bool file_readable(const char *file);
+static bool confirm(const char *question, int def, int quiet);
 
 /* ------------------------------------------------------------------------- */
 
@@ -176,13 +178,27 @@ int repo_update(Arguments *arg)
     NodeStr *short_head = NULL;
     for (NodeStr *iter = head; iter != NULL; iter = iter->next) {
         char *name = pkg_name(iter->data);
-        if (name != NULL && list_search(short_head, name) == NULL) {
-            list_push(&head, name);
-            add_package(name, arg);
+        if (name != NULL) {
+            /*
+             * If name is not in $short_head, then it is added, and will be freed
+             * later by list_free_all(&short_head). Otherwise it is not added, and
+             * we need to delete it ourselves.
+             */
+            if (list_search(short_head, name) == NULL) {
+                debug_printf("debug: pushing name %s\n", name);
+                list_push(&short_head, name);
+                add_package(name, arg);
+            } else {
+                debug_printf("debug: freeing name %s\n", name);
+                free(name);
+            }
         }
+        debug(list_print(short_head, " "), printf("\n"));
     }
 
     /* free list and return */
+    debug(list_print(short_head, " "), printf("\n"));
+    debug(list_print(head, " "), printf("\n"));
     list_free_all(&short_head);
     list_free_all(&head);
     return OK;
@@ -209,7 +225,7 @@ int repo_sync(Arguments *arg)
  * repo_check: print an error message and quit in case there is anything
  * wrong with db_name and db_dir given in the configuration file.
  */
-bool repo_check(Arguments *arg)
+static bool repo_check(Arguments *arg)
 {
     if (!file_readable(arg->db_path)) {
         fprintf(stderr, "Error: cannot open database '%s'\n", arg->db_path);
@@ -222,7 +238,7 @@ bool repo_check(Arguments *arg)
 /*
  * add_package: add a single package to the database.
  */
-int add_package(const char *pkg_name, Arguments *arg)
+static int add_package(const char *pkg_name, Arguments *arg)
 {
     int retval = OK;
     char *regex;
@@ -290,7 +306,7 @@ int add_package(const char *pkg_name, Arguments *arg)
 /*
  * remove_files: confirm the removal of list of files, and remove them.
  */
-int remove_files(NodeStr *head, int quiet)
+static int remove_files(NodeStr *head, int quiet)
 {
     NodeStr *names, *iter;
     char *args, *mesg;
@@ -327,7 +343,7 @@ int remove_files(NodeStr *head, int quiet)
  * Returns: name of the package, or NULL if pkg_path does not match.
  * Warning: you must call free() on the result of this function.
  */
-char *pkg_name(const char *input)
+static char *pkg_name(const char *input)
 {
     const char *regex = "^(/.*/)?(" PKG_NAME ")" PKG_EXT;
     char errbuf[MAX_ERROR_LINE_LENGTH];      /* for holding error messages by regex.h */
@@ -365,7 +381,7 @@ end:
 /*
  * file_readable: return whether the file in question is readable or not.
  */
-bool file_readable(const char *file)
+static bool file_readable(const char *file)
 {
     FILE *in = fopen(file, "r");
     if (in == NULL)
@@ -381,7 +397,7 @@ bool file_readable(const char *file)
  * stderr. Otherwise, the default is accepted. (This is useful for documenting
  * what the system is doing if you used an option such as --quiet.)
  */
-bool confirm(const char *question, int def, int quiet)
+static bool confirm(const char *question, int def, int quiet)
 {
     char c = ' ';
 
@@ -415,10 +431,10 @@ bool confirm(const char *question, int def, int quiet)
 
 /*
  * exec_system: print the command, run it in the system, return status.
- * 
+ *
  * @returns: OK or ERR_SYSTEM.
  */
-int exec_system(const char *command) {
+static int exec_system(const char *command) {
     int retval;
 
     printf("Running: %s\n", command);
