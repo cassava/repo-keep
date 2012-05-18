@@ -18,6 +18,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include "repo.h"
+#include "actions.h"
+
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
@@ -31,14 +34,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "repo.h"
-#include "actions.h"
-#include "debug.h"
-#include "bm_list.h"
-#include "bm_list_str.h"
-#include "bm_string.h"
-#include "bm_util.h"
-
+#include "cassava/debug.h"
+#include "cassava/list.h"
+#include "cassava/list_str.h"
+#include "cassava/string.h"
+#include "cassava/util.h"
 
 static int remove_files(NodeStr *head, int quiet);
 static int add_package(const char *pkg_name, Arguments *arg);
@@ -109,8 +109,8 @@ int repo_remove(Arguments *arg)
         NodeStr *head;  /* head of a linked list of filenames */
         int count;
 
-        argstr = bm_strjoin(arg->argv, arg->argc, "|", 0);
-        regex = bm_strvcat("^(", argstr, ")", PKG_EXT, NULL);
+        argstr = cs_strjoin(arg->argv, arg->argc, "|", 0);
+        regex = cs_strvcat("^(", argstr, ")", PKG_EXT, NULL);
         count = get_regex_files(regex, arg->db_dir, &head);
         free(argstr);
         free(regex);
@@ -126,8 +126,8 @@ int repo_remove(Arguments *arg)
     }
 
     /* remove entry from database */
-    argstr = bm_strjoin(arg->argv, arg->argc, " ", 0);
-    cmd = bm_strvcat(SYSTEM_REPO_REMOVE, " ", arg->db_path, " ", argstr, NULL);
+    argstr = cs_strjoin(arg->argv, arg->argc, " ", 0);
+    cmd = cs_strvcat(SYSTEM_REPO_REMOVE, " ", arg->db_path, " ", argstr, NULL);
     retval |= exec_system(cmd);
 
     free(cmd);
@@ -160,7 +160,7 @@ int repo_update(Arguments *arg)
         goto error;
 
     /* filter all files out that are not packages */
-    char *pkgregex = bm_strvcat("^", arg->db_dir, PKG_NAME PKG_EXT, NULL);
+    char *pkgregex = cs_strvcat("^", arg->db_dir, PKG_NAME PKG_EXT, NULL);
     retval = list_filter_destroy(&head, pkgregex);
     free(pkgregex);
     if (retval == -1) {
@@ -245,7 +245,7 @@ static int add_package(const char *pkg_name, Arguments *arg)
     NodeStr *head;
     int count;
 
-    regex = bm_strvcat("^(", pkg_name, ")", PKG_EXT, NULL);
+    regex = cs_strvcat("^(", pkg_name, ")", PKG_EXT, NULL);
     count = get_regex_files(regex, arg->db_dir, &head);
     free(regex);
 
@@ -290,7 +290,7 @@ static int add_package(const char *pkg_name, Arguments *arg)
             list_free_nodes(&oldest);
         }
 
-        cmd = bm_strvcat(SYSTEM_REPO_ADD, " ", arg->db_path, " ", filename, NULL);
+        cmd = cs_strvcat(SYSTEM_REPO_ADD, " ", arg->db_path, " ", filename, NULL);
         retval |= exec_system(cmd);
         free(cmd);
     } else {
@@ -320,7 +320,7 @@ static int remove_files(NodeStr *head, int quiet)
 
     /* use names list to create a question */ 
     args = list_strjoin(names, "\n              ");
-    mesg = bm_strvcat("Delete files: ", args, "?", NULL);
+    mesg = cs_strvcat("Delete files: ", args, "?", NULL);
     free(args);
     list_free_nodes(&names);
 
@@ -358,12 +358,11 @@ static char *pkg_name(const char *input)
         return NULL;
     }
 
-    // FIXME: This does not work yet!
     char *result = NULL;
     regmatch_t pmatch[3];
     errcode = regexec(&preg, input, 3, pmatch, 0);
     if (errcode == 0) {
-        result = bm_substr(input, pmatch[2].rm_so, pmatch[2].rm_eo);
+        result = cs_substr(input, pmatch[2].rm_so, pmatch[2].rm_eo);
     } else if (errcode == REG_NOMATCH) {
         goto end;
     } else {

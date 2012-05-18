@@ -1,14 +1,16 @@
 /*
- * bm_list_str.h
+ * libcassava/list_str.h
  * Functions and macros for use with singly linked lists
  * that use as data in the list_node struct char *.
- * 
+ */
+
+/*
  * Copyright (c) 2011-2012 Ben Morgan <neembi@googlemail.com>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
@@ -18,8 +20,8 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef BMLIST_STR_H
-#define BMLIST_STR_H
+#ifndef LIBCASSAVA_LIST_STR_H
+#define LIBCASSAVA_LIST_STR_H
 
 #include <stdbool.h>
 
@@ -27,7 +29,7 @@
 #define MAX_ERROR_LINE_LENGTH 80
 
 
-/* 
+/*
  * Since list_node is required to contain data of type char *,
  * we define it explicitely here.
  */
@@ -80,7 +82,7 @@ extern NodeStr *list_search(NodeStr * /*haystack*/, const char * /*needle*/);
 /*
  * list_strjoin: join all the list elements together.
  * @returns: newly allocated string (don't forget to free() it).
- * 
+ *
  * Behavior is undefined if either parameter is NULL.
  */
 extern char *list_strjoin(NodeStr * /*head*/, const char * /*sep*/);
@@ -94,5 +96,5 @@ extern char *list_strjoin(NodeStr * /*head*/, const char * /*sep*/);
  */
 extern int list_filter_destroy(NodeStr ** /*head*/, const char * /*regex*/);
 
-#endif /* BMLIST_STR_H */
+#endif /* LIBCASSAVA_LIST_STR_H */
 /* vim: set cin ts=4 sw=4 et: */

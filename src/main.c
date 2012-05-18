@@ -18,8 +18,6 @@
 
 #include "repo.h"
 #include "actions.h"
-#include "bm_config.h"
-#include "bm_string.h"
 
 #include <argp.h>
 #include <assert.h>
@@ -28,6 +26,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "cassava/config.h"
+#include "cassava/string.h"
 
 // Variables and constants for argp argument parsing.
 const char *argp_program_version = REPO_VERSION_STRING;
@@ -69,7 +69,7 @@ static struct config_map configuration[] = {
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-#define _argeq(S)  bm_isprefix(arg, S)
+#define _argeq(S)  cs_isprefix(arg, S)
 #define _acmd  arguments->command
     struct arguments *arguments = state->input;
 
@@ -124,7 +124,7 @@ static char *tildestr(char *line)
 
     if (*line == '~') {
         home = getenv("HOME");
-        return bm_strcat(home, line+1);
+        return cs_strcat(home, line+1);
     }
     return line;
 }
@@ -164,7 +164,7 @@ static void load_config(struct arguments *arguments, char *default_config)
         arguments->db_dir = configuration[0].value = ptr;
     }
     arguments->db_name = configuration[1].value;
-    arguments->db_path = bm_strcat(arguments->db_dir, arguments->db_name);
+    arguments->db_path = cs_strcat(arguments->db_dir, arguments->db_name);
 }
 
 

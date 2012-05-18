@@ -1,13 +1,15 @@
 /*
- * bm_list.h
+ * libcassava/list.h
  * Functions and macros for use with singly linked lists.
- * 
+ */
+
+/*
  * Copyright (c) 2011-2012 Ben Morgan <neembi@googlemail.com>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
@@ -17,20 +19,20 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef BMLIST_H
-#define BMLIST_H
+#ifndef LIBCASSAVA_LIST_H
+#define LIBCASSAVA_LIST_H
 
 #include <stdbool.h>
 #include <stdlib.h>
 
 /*
  * In order to use these functions, you must define
- * 
+ *
  *     struct list_node {
  *         void *data;
  *         struct list_node *next;
  *     }
- * 
+ *
  * with the appropriate datatype for data.
  */
 
@@ -61,7 +63,7 @@ extern bool list_empty(struct list_node * /*head*/);
  *
  * @param *head: pointer to the head of the list.
  * @returns: length of the list, 0 if empty.
- * 
+ *
  * Calling this function should be avoided, as it works in time O(n).
  */
 extern size_t list_length(struct list_node * /*head*/);
@@ -83,7 +85,7 @@ extern void **list_to_array(struct list_node * /*head*/);
  *
  * @param **head: pointer to pointer to the head of the list; will be modified.
  * @param *data: data to push on top of the list, will replace previous head.
- * 
+ *
  * A new node will be created with list_node() to hold data.
  * WARNING: Beware of pushing non-allocated data onto the list,
  * as list_free_all() will try to free the data.
@@ -144,5 +146,5 @@ extern void list_free_nodes(struct list_node ** /*head*/);
  */
 extern void list_free_all(struct list_node ** /*head*/);
 
-#endif /* BMLIST_H */
+#endif /* LIBCASSAVA_LIST_H */
 /* vim: set cin ts=4 sw=4 et: */
