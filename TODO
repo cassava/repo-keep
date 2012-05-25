@@ -1,25 +1,6 @@
 TODO: REPO-UPDATE
 =======================================================================
 
-  1. Create a generic configuration file parser in the style that
-     pacman uses for it's config file: /etc/pacman.conf
-    
-  2. Allow for multiple repositories (I'm going to make this depend
-     on #1, for simplicity).
-  
-  3. Allow for automatic scanning of what has been updated to refresh the
-     repository. (syntax: repo update)
-  
-  4. Allow for scanning the repository to see for which packages there are
+  1. Allow for scanning the repository to see for which packages there are
      newer versions in the AUR. (This could be complicated, but would be
      very very useful.) (syntax: repo sync)
-  
-  5. Make sure that you don't delete just based on numbering, but also on age.
-     (What is the current behaviour?)
-
-  6. Rewrite the program, so that
-         repo [arguments] cmd [arguments]
-     So for example: repo sync
-                     repo update
-                     repo add google-earth
-                     repo remove package

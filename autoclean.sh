@@ -14,6 +14,9 @@ rm -r config{,.log,.status}
 rm configure
 rm Makefile{,.in}
 
+# contrib/
+rm doc/Makefile{,.in}
+
 # doc/
 rm doc/Makefile{,.in}
 

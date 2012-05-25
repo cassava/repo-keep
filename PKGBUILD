@@ -1,6 +1,6 @@
 # Maintainer: Ben Morgan <neembi@googlemail.com>
 pkgname=repo-keep
-pkgver=1.9.2
+pkgver=1.9.3
 pkgrel=1
 pkgdesc="A supplement to repo-add and repo-remove which simplifies updating local repositories"
 arch=('i686 x86_64')
@@ -30,4 +30,3 @@ package() {
 
 }
 
-md5sums=('e13b01611e46525b57779b6555faeb6c')

@@ -1,13 +1,15 @@
 /*
- * bm_util.h
+ * libcassava/util.h
  * Various helpful functions.
- * 
+ */
+
+/*
  * Copyright (c) 2011-2012 Ben Morgan <neembi@googlemail.com>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
@@ -17,19 +19,12 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef BMUTIL_H
-#define BMUTIL_H
+#ifndef LIBCASSAVA_UTIL_H
+#define LIBCASSAVA_UTIL_H
+
+#include "list_str.h"
 
 #include <sys/types.h>
-
-#define MAX_OUT_LINE 80
-
-
-/* See bm_list.h for an explanation on this. */
-typedef struct list_node {
-    char *data;
-    struct list_node *next;
-} Node;
 
 
 /*
@@ -37,37 +32,20 @@ typedef struct list_node {
  * Returns: number of files found.
  * Warning: make sure to call list_free_all() on the head Node when done.
  */
-extern int get_regex_files(const char * /*regex*/, const char * /*dir*/, Node ** /*head*/);
+extern int get_regex_files(const char * /*regex*/, const char * /*dir*/, NodeStr ** /*head*/);
 
 /*
  * get_younger_files: get all files in dir that are younger than age.
  * Returns: number of files found.
  * Warning: make sure to call list_free_all() on the head Node when done.
  */
-extern int get_younger_files(const time_t /*age*/, const char * /*dir*/, Node ** /*head*/);
+extern int get_younger_files(const time_t /*age*/, const char * /*dir*/, NodeStr ** /*head*/);
 
 /*
- * list_filter_destroy: filter nodes in head with regex; only nodes matching regex are allowed.
- * Returns: count of nodes that match regex, -1 if error.
- * Warning: nodes that do NOT match regex are completely freed: node and data.
+ * TODO: Implement me!
  */
-extern int list_filter_destroy(const char * /*regex*/, Node ** /*head*/);
+extern void print_columns(char ** /*array*/);
 
-/*
- * list_files: print a listing of all the files in linked list.
- */
-extern void list_files(Node * /*head*/, char * /*prefix*/);
+#endif /* LIBCASSAVA_UTIL_H */
 
-/*
- * list_search: return Node containing data, or NULL.
- */
-extern Node *list_search(char * /*search*/, Node * /*head*/);
-
-/*
- * list_strjoin: join all the list elements together.
- * Returns the joined string. Don't forget to free it when done.
- */
-extern char *list_strjoin(Node * /*head*/, const char * /*sep*/);
-
-
-#endif // BMUTIL_H
+/* vim: set cin ts=4 sw=4 et: */

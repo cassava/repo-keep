@@ -10,4 +10,4 @@ Makefile.in
 *.tar.gz
 src/*.o
 src/repo
-
+src/tags
