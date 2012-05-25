@@ -19,6 +19,9 @@
 #ifndef REPO_H
 #define REPO_H
 
+/* get rid of assert or debug_* statements */
+#define NDEBUG
+
 #define REPO_VERSION    "1.9.3"
 #define REPO_DATE       "14. February 2012"
 #define REPO_VERSION_STRING "repo " REPO_VERSION "  (" REPO_DATE ")"

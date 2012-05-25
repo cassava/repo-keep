@@ -28,6 +28,7 @@
 
 #include "cassava/config_kv.h"
 #include "cassava/string.h"
+#include "cassava/debug.h"
 
 // Variables and constants for argp argument parsing.
 const char *argp_program_version = REPO_VERSION_STRING;
@@ -176,6 +177,7 @@ int main(int argc, char **argv)
     int retval = OK;
 
     // set default values
+    debug_puts("Debugging is enabled.");
     arguments.soft = 0;
     arguments.quiet = 0;
     arguments.config = default_config;
