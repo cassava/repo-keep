@@ -1,9 +1,7 @@
 /*
  * libcassava/list.h
- * Functions and macros for use with singly linked lists.
- */
-
-/*
+ * vim: set cin ts=4 sw=4 et:
+ *
  * Copyright (c) 2011-2012 Ben Morgan <neembi@googlemail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -19,132 +17,225 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+/**
+ * \file
+ * Functions and macros for use with singly-linked lists.
+ *
+ * In order to use these functions, you must define
+ * \code
+ *     struct list_node {
+ *         void *data;
+ *         struct list_node *next;
+ *     }
+ * \endcode
+ * with the appropriate datatype for \a data.
+ *
+ * \author Ben Morgan
+ * \date 28. May 2012
+ */
+
 #ifndef LIBCASSAVA_LIST_H
 #define LIBCASSAVA_LIST_H
 
 #include <stdbool.h>
 #include <stdlib.h>
 
-/*
- * In order to use these functions, you must define
+
+/**
+ * \struct list_node
  *
- *     struct list_node {
- *         void *data;
- *         struct list_node *next;
- *     }
+ * The head of a singly-linked list and at the same time the node.  If \a data
+ * is \c NULL, then a node is considered to hold nothing, and if \a next is \c
+ * NULL, then the node is considere the last in the list. A pointer to struct
+ * list_node which is \c NULL is considered an empty linked list.
  *
- * with the appropriate datatype for data.
+ * \param data Pointer to data that the node ``stores''.
+ * \param next Pointer to the next node in the linked list.
+ *
+ * \warning Most functions assume that if there is a pointer unequal to \c
+ * NULL, that then \a data is also not \c NULL; therefore make sure you don't
+ * have useless nodes lying around, they might bite you in the end.
  */
 
-/*
- * list_node: create a new list node using malloc.
- *
- * @returns: pointer to an allocated list node.
+/**
+ * Create a new list node using malloc.
  *
  * The node returned by this function constitutes a list of length 1.
- * For safety, data and next of the node are initialized to NULL.
+ * For safety, \a data and \a next of the node are initialized to \c NULL.
+ *
+ * \return Pointer to an allocated list node.
  */
 extern struct list_node *list_node();
 
-/*
- * list_empty: returns true if list is empty, false otherwise.
- *
- * @param *head: pointer to the head of the list.
- * @returns: true if list is empty, false otherwise.
+/**
+ * Returns true if list is empty, false otherwise.
  *
  * When is a list empty? Since we can't know if the data of a node is
- * meaningful or not, we do not consider the data, not even for NULL.
- * An empty list is a list where head is a NULL-pointer.
+ * meaningful or not, we do not consider the data, not even for \c NULL.
+ * An empty list is a list where head is a null pointer.
+ *
+ * \param head Pointer to the head of the list.
+ * \return true if list is empty, false otherwise.
  */
-extern bool list_empty(struct list_node * /*head*/);
+extern bool list_empty(const struct list_node *head);
 
-/*
- * list_length: returns the length of the list, 0 if empty.
+/**
+ * Returns the length of the list, 0 if empty.
  *
- * @param *head: pointer to the head of the list.
- * @returns: length of the list, 0 if empty.
+ * \param head Pointer to the head of the list.
+ * \return Length of the list, 0 if empty.
  *
- * Calling this function should be avoided, as it works in time O(n).
+ * \note Calling this function should be avoided, as it works in time O(n).
  */
-extern size_t list_length(struct list_node * /*head*/);
+extern size_t list_length(const struct list_node *head);
 
-/*
- * list_to_array: return a NULL-terminated array with all the data pointers.
+/**
+ * Returns a NULL-terminated array with all the data pointers.
+ * The \a output array must be freed.
  *
- * @param *head: pointer to the head of the list.
- * @returns: pointer to an array of pointers to data. Only the last one will
- *           be NULL, so the size of the array may be smaller than the length
- *           of the list.
+ * \param head   Pointer to the head of the list.
+ * \param output Pointer to a string array. Afterwards the pointer will point
+ *               to a newly allocated array, which needs to be freed. The last
+ *               entry in the array has the pointer entry \c NULL.
+ * \return Number of elements (without the last \c NULL element) in the returned
+ *         array.
  *
- * Note: the returned array must be freed.
+ * \b Example:
+ * \code
+ *     char **array;
+ *     list_to_array(head, &output);
+ *     free(output);
+ * \endcode
  */
-extern void **list_to_array(struct list_node * /*head*/);
+extern size_t list_to_array(const struct list_node *head, void ***output);
 
-/*
- * list_push: push a data on top of the list.
- *
- * @param **head: pointer to pointer to the head of the list; will be modified.
- * @param *data: data to push on top of the list, will replace previous head.
+/**
+ * Push a data on top of the list.
  *
  * A new node will be created with list_node() to hold data.
- * WARNING: Beware of pushing non-allocated data onto the list,
+ *
+ * \param head Pointer to pointer to the head of the list; will be modified.
+ * \param data Data to push on top of the list, will replace previous head.
+ *
+ * \warning Beware of pushing non-dynamic allocated data onto the list,
  * as list_free_all() will try to free the data.
  */
-extern void list_push(struct list_node ** /*head*/, void * /*data*/);
+extern void list_push(struct list_node **head, void *data);
 
-/*
- * list_pop: pop data from head and remove top node.
- *
- * @param **head: pointer to pointer to the head of the list; will be modified.
- * @returns: data stored in head, possibly NULL.
+/**
+ * Pop data from head and remove top node.
  *
  * The head node will be replaced by the next-in-line, and will be freed.
- * If list is empty, then NULL will be returned, however a NULL returned does
- * not mean that the list is empty! A node may also store data that is NULL.
+ * If list is empty, then \c NULL will be returned, however a \c NULL returned does
+ * not mean that the list is empty! A node may also store data that is \c NULL.
+ *
+ * \param head Pointer to pointer to the head of the list; will be modified.
+ * \return Data stored in head, possibly \c NULL.
  */
-extern void *list_pop(struct list_node ** /*head*/);
+extern void *list_pop(struct list_node **head);
 
-/*
- * list_insert: insert a list or a single node after head.
+/**
+ * Insert a list or a single node after head.
  * If head is an empty list, than node will replace head.
  *
- * @param **head: pointer to pointer to the node of the list where node should
- *                be inserted. head need not be the real head of a list.
- * @param *node: node to insert after head.
+ * \param head Pointer to pointer to the node of the list where node should
+ *             be inserted. \a head need not be the real head of a list.
+ * \param node Node to insert after \a head.
  */
-extern void list_insert(struct list_node ** /*head*/, struct list_node * /*node*/);
+extern void list_insert(struct list_node **head, struct list_node *node);
 
-/*
- * list_remove: remove and return the head node, replacing it with the next.
+/**
+ * Remove and return the head node, replacing it with the next.
  *
- * @param **head: pointer to the head of the list; will be replaced with the
- *                next-in-line. Make sure nothing else points to this head.
- * @returns: pointer to the head list node, with next set to NULL.
+ * \param head Pointer to the head of the list; will be replaced with the
+ *             next-in-line. Make sure nothing else points to this \a head.
+ * \return Pointer to the head list node, with \a next set to \c NULL.
  *
- * WARNING: you are just asking for trouble if you remove a node which is not
+ * \warning you are just asking for trouble if you remove a node which is not
  * the real head of the list! So don't do it.
  */
-extern struct list_node *list_remove(struct list_node ** /*head*/);
+extern struct list_node *list_remove(struct list_node **head);
 
-/*
- * list_free_nodes: free all the nodes (not the data) in the list.
+/**
+ * Remove all nodes from the list where the function \a filter() does not
+ * return \c true.
  *
- * @param **head: pointer to pointer to the head of the list; will be modified.
- *                It will become NULL after all this has been done.
+ * \note Any element which will be excluded from the list will be freed,
+ * as if it were (both node and data) allocated with \a malloc().
  *
- * We assume that all the nodes have been allocated using malloc.
+ * \param head   Pointer to the head of the list; the list will be altered,
+ *               and may be \c NULL.
+ * \param filter Function which takes the type \a list_node::data and
+ *               returns true if it should stay in the list. The argument
+ *               to filter can also be a non-void datatype.
+ * \return The number of elements which matched filter.
+ *
+ * \b Example: Without arguments:
+ * \code
+ *     bool filter_notempty(char *str, void *)
+ *     {
+ *         return strlen(str) > 0;
+ *     }
+ *
+ *     int main()
+ *     {
+ *         NodeStr *head = get_some_dynamic_list();
+ *         list_filter(&head, filter_notempty, NULL);
+ *         list_free_all(&head);
+ *         return 0;
+ *     }
+ * \endcode
+ *
+ * \b Example: With arguments:
+ * \code
+ *     struct filter_comp_args {
+ *         int number;
+ *         int comp;
+ *     }
+ *
+ *     bool filter_comp(int *element, struct filter_comp_args *arguments)
+ *     {
+ *         int comp = arguments->comp;
+ *         if (comp < 0)
+ *             return *element < arguments->number;
+ *         else if (comp > 0)
+ *             return *element > arguments->number;
+ *         else
+ *             return *element == arguments->number;
+ *     }
+ *
+ *     int main()
+ *     {
+ *         // Ficticious code, but let's imagine it would work:
+ *         int array[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+ *         NodeStr *head = list_from_basic_array(array);
+ *         struct filter_comp_args arguments = {5, -1};
+ *         int retval = list_filter(head, filter_comp, &arguments);
+ *         return 0;
+ *     }
+ * \endcode
  */
-extern void list_free_nodes(struct list_node ** /*head*/);
+extern size_t list_filter(struct list_node **head,
+                          bool (*filter)(void *, void *),
+                          void *arguments
+                          );
 
-/*
- * list_free_all: free all the nodes AND the data in the list.
+/**
+ * Free all the nodes (not the data) in the list.
+ * We assume that all the nodes have been allocated using malloc().
  *
- * @param **head: pointer to pointer to the head of the list; will be modified.
- *                It will become NULL after all this has been done.
- *
- * We assume that all the nodes AND the data have been allocated using malloc.
+ * \param head Pointer to pointer to the head of the list; will be modified.
+ *             It will become \c NULL after all this has been done.
  */
-extern void list_free_all(struct list_node ** /*head*/);
+extern void list_free_nodes(struct list_node **head);
+
+/**
+ * Free all the nodes AND the data in the list.
+ * We assume that all the nodes AND the data have been allocated using malloc().
+ *
+ * \param head Pointer to pointer to the head of the list; will be modified.
+ *             It will become \c NULL after all this has been done.
+ */
+extern void list_free_all(struct list_node **head);
 
 #endif /* LIBCASSAVA_LIST_H */
-/* vim: set cin ts=4 sw=4 et: */
