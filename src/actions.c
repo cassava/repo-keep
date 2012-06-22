@@ -34,11 +34,12 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "cassava/debug.h"
-#include "cassava/list.h"
-#include "cassava/list_str.h"
-#include "cassava/string.h"
-#include "cassava/util.h"
+#include "libcassava/debug.h"
+#include "libcassava/list.h"
+#include "libcassava/list_str.h"
+#include "libcassava/string.h"
+#include "libcassava/util.h"
+#include "libcassava/system.h"
 
 static int remove_files(NodeStr *head, int quiet);
 static int add_package(const char *pkg_name, Arguments *arg);
@@ -52,25 +53,29 @@ static bool confirm(const char *question, int def, int quiet);
 
 int repo_list(Arguments *arg)
 {
-    NodeStr *head;
-    int count;
-    int retval = OK;
-
     /* check prerequisites */
     if (!repo_check(arg))
         return ERR_SYSTEM;
 
-    count = get_regex_files(".*" PKG_EXT, arg->db_dir, &head);
+    NodeStr *head;
+    int retval = OK;
+    int count = get_filenames_filter_regex(arg->db_dir, &head, ".*" PKG_EXT);
     if (count < 0) {
         fprintf(stderr, "Error: failed to retrieve files.\n");
         retval |= ERR_SYSTEM;
     } else if (count > 0) {
-        for (NodeStr *iter = head; iter != NULL; iter = iter->next) {
-            char *name = pkg_name(iter->data);
-            assert(name != NULL);
-            printf("  %s\n", name);
-            free(name);
-        }
+        char **array;
+        size_t len = list_to_array(head, (void ***)&array);
+        cs_qsort(array, len);
+
+        for (size_t i = 0; i < len; i++)
+            array[i] = pkg_name(array[i]);
+        print_columns(array, len);
+
+        // Cleanup:
+        for (size_t i = 0; i < len; i++)
+            free(array[i]);
+        free(array);
     }
 
     list_free_all(&head);
@@ -111,7 +116,7 @@ int repo_remove(Arguments *arg)
 
         argstr = cs_strjoin(arg->argv, arg->argc, "|", 0);
         regex = cs_strvcat("^(", argstr, ")", PKG_EXT, NULL);
-        count = get_regex_files(regex, arg->db_dir, &head);
+        count = get_filenames_filter_regex(arg->db_dir, &head, regex);
         free(argstr);
         free(regex);
 
@@ -137,6 +142,7 @@ int repo_remove(Arguments *arg)
 }
 
 
+
 int repo_update(Arguments *arg)
 {
     time_t db_time;
@@ -156,12 +162,14 @@ int repo_update(Arguments *arg)
     db_time = statbuf.st_mtime;
 
     /* get all files younger than db_time */
-    if ((retval = get_younger_files(db_time, arg->db_dir, &head)) == -1)
+    struct filter_time_args args = { db_time, 1 };
+    retval = get_filepaths_filter(arg->db_dir, &head, filter_mtime, (void *)&args);
+    if (retval == -1)
         goto error;
 
     /* filter all files out that are not packages */
     char *pkgregex = cs_strvcat("^", arg->db_dir, PKG_NAME PKG_EXT, NULL);
-    retval = list_filter_destroy(&head, pkgregex);
+    retval = list_filter_regex(&head, pkgregex);
     free(pkgregex);
     if (retval == -1) {
         goto error;
@@ -241,12 +249,10 @@ static bool repo_check(Arguments *arg)
 static int add_package(const char *pkg_name, Arguments *arg)
 {
     int retval = OK;
-    char *regex;
     NodeStr *head;
-    int count;
 
-    regex = cs_strvcat("^(", pkg_name, ")", PKG_EXT, NULL);
-    count = get_regex_files(regex, arg->db_dir, &head);
+    char *regex = cs_strvcat("^(", pkg_name, ")", PKG_EXT, NULL);
+    int count = get_filenames_filter_regex(arg->db_dir, &head, regex);
     free(regex);
 
     /* test age of file */
@@ -346,7 +352,7 @@ static int remove_files(NodeStr *head, int quiet)
 static char *pkg_name(const char *input)
 {
     const char *regex = "^(/.*/)?(" PKG_NAME ")" PKG_EXT;
-    char errbuf[MAX_ERROR_LINE_LENGTH];      /* for holding error messages by regex.h */
+    char errbuf[BUFSIZ];      /* for holding error messages by regex.h */
     int errcode;
 
     /* compile regex */

@@ -20,23 +20,23 @@
 
 #ifdef NDEBUG
 
-#define _VOID_CAST (void) (0)
+#define VOID_POINTER_CAST_ (void) (0)
 
-#define debug(...) _VOID_CAST
-#define debug_puts(str) _VOID_CAST
-#define debug_printf(...) _VOID_CAST
+#define debug(...) VOID_POINTER_CAST_
+#define debug_puts(str) VOID_POINTER_CAST_
+#define debug_printf(...) VOID_POINTER_CAST_
 
 #else
 
 #include <stdio.h>
 
-#define _LEVEL1(str) #str
-#define _LEVEL0(str) _LEVEL1(str)
-#define _DEBUG_FILENO __FILE__ " (" _LEVEL0(__LINE__) "): "
+#define STRINGIFY_LEVEL1_(str) #str
+#define STRINGIFY_LEVEL0_(str) STRINGIFY_LEVEL1_(str)
+#define DEBUG_FILENO_ __FILE__ " (" STRINGIFY_LEVEL0_(__LINE__) "): "
 
 #define debug(...) __VA_ARGS__
-#define debug_puts(str) puts(_DEBUG_FILENO str)
-#define debug_printf(...) fprintf(stderr, _DEBUG_FILENO __VA_ARGS__)
+#define debug_puts(str) puts(DEBUG_FILENO_ str)
+#define debug_printf(...) fprintf(stderr, DEBUG_FILENO_ __VA_ARGS__)
 
 #endif /* NDEBUG */
 

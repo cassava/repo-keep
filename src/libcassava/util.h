@@ -1,9 +1,7 @@
 /*
  * libcassava/util.h
- * Various helpful functions.
- */
-
-/*
+ * vim: set cin ts=4 sw=4 et cc=81:
+ *
  * Copyright (c) 2011-2012 Ben Morgan <neembi@googlemail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -19,33 +17,36 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+/**
+ * \file
+ * Various utility functions that make use of libcassava.
+ *
+ * In order to use this header file, your library must have the ceil() function
+ * available. On some systems, you need the \a libm math library.
+ *
+ * \author Ben Morgan
+ * \date 1. June 2012
+ */
+
 #ifndef LIBCASSAVA_UTIL_H
 #define LIBCASSAVA_UTIL_H
 
-#include "list_str.h"
+#include <stdlib.h>
 
-#include <sys/types.h>
+/** Define the width separating two columns for the function print_columns(). */
+#define PRINT_COLUMNS_SEP_WIDTH 2
 
-
-/*
- * get_regex_files: get all files in dir that match regex.
- * Returns: number of files found.
- * Warning: make sure to call list_free_all() on the head Node when done.
+/**
+ * Print an array of strings in columns to STDOUT, like the *nix command \e ls
+ * does it.
+ *
+ * \param array Array of strings.
+ * \param len   Length of the array, or number of entries to read.  So if \code
+ *              len = 5 \endcode then \a array will be read till \c array[4],
+ *              which makes five elements.
+ *
+ * TODO Make this \a array \c const.
  */
-extern int get_regex_files(const char * /*regex*/, const char * /*dir*/, NodeStr ** /*head*/);
-
-/*
- * get_younger_files: get all files in dir that are younger than age.
- * Returns: number of files found.
- * Warning: make sure to call list_free_all() on the head Node when done.
- */
-extern int get_younger_files(const time_t /*age*/, const char * /*dir*/, NodeStr ** /*head*/);
-
-/*
- * TODO: Implement me!
- */
-extern void print_columns(char ** /*array*/);
+extern void print_columns(char **array, size_t len);
 
 #endif /* LIBCASSAVA_UTIL_H */
-
-/* vim: set cin ts=4 sw=4 et: */

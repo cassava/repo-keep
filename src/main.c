@@ -26,15 +26,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cassava/config_kv.h"
-#include "cassava/string.h"
-#include "cassava/debug.h"
+#include "libcassava/config_kv.h"
+#include "libcassava/string.h"
+#include "libcassava/debug.h"
 
 // Variables and constants for argp argument parsing.
 const char *argp_program_version = REPO_VERSION_STRING;
 const char *argp_program_bug_address = "<neembi@googlemail.com>";
 
-static char args_doc[] = "<add|remove|update|sync> [PACKAGES ...]";
+static char args_doc[] = "<add|list|remove|update|sync> [PACKAGES ...]";
 static char doc[] =
     "Manage local pacman repositories.\n"
     "\n"
@@ -44,12 +44,12 @@ static char doc[] =
     "                   finding in the same directory of the database the latest\n"
     "                   file for that package (by file modification date),\n"
     "                   deleting the others, and updating the database.\n"
+    "  list             List all the packages that are currently available.\n"
     "  remove <pkgname> Remove the package with <pkgname> from the database, by\n"
     "                   removing its entry from the database and deleting the files\n"
     "                   that belong to it.\n"
     "  update           Same as add, except scan and add changed packages.\n"
     "  synchronize      Compare packages in the database to AUR for new versions.\n"
-    "  list             List all packages that are found registered in the database.\n"
     "\n"
     "NOTE: In all of these cases, <pkgname> is the name of the package, without\n"
     "anything else. For example: pacman, and not pacman-3.5.3-1-i686.pkg.tar.xz";
