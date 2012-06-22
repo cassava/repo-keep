@@ -50,7 +50,6 @@ static char doc[] =
     "                   that belong to it.\n"
     "  update           Same as add, except scan and add changed packages.\n"
     "  synchronize      Compare packages in the database to AUR for new versions.\n"
-    "  list             List all packages that are found registered in the database.\n"
     "\n"
     "NOTE: In all of these cases, <pkgname> is the name of the package, without\n"
     "anything else. For example: pacman, and not pacman-3.5.3-1-i686.pkg.tar.xz";
