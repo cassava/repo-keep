@@ -176,7 +176,7 @@ extern struct list_node *list_remove(struct list_node **head);
  *     {
  *         return strlen(str) > 0;
  *     }
- *
+ *  
  *     int main()
  *     {
  *         NodeStr *head = get_some_dynamic_list();
@@ -192,7 +192,7 @@ extern struct list_node *list_remove(struct list_node **head);
  *         int number;
  *         int comp;
  *     }
- *
+ *  
  *     bool filter_comp(int *element, struct filter_comp_args *arguments)
  *     {
  *         int comp = arguments->comp;
@@ -203,7 +203,7 @@ extern struct list_node *list_remove(struct list_node **head);
  *         else
  *             return *element == arguments->number;
  *     }
- *
+ *  
  *     int main()
  *     {
  *         // Ficticious code, but let's imagine it would work:

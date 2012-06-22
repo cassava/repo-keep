@@ -26,9 +26,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cassava/config_kv.h"
-#include "cassava/string.h"
-#include "cassava/debug.h"
+#include "libcassava/config_kv.h"
+#include "libcassava/string.h"
+#include "libcassava/debug.h"
 
 // Variables and constants for argp argument parsing.
 const char *argp_program_version = REPO_VERSION_STRING;

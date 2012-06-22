@@ -34,12 +34,12 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "cassava/debug.h"
-#include "cassava/list.h"
-#include "cassava/list_str.h"
-#include "cassava/string.h"
-#include "cassava/util.h"
-#include "cassava/system.h"
+#include "libcassava/debug.h"
+#include "libcassava/list.h"
+#include "libcassava/list_str.h"
+#include "libcassava/string.h"
+#include "libcassava/util.h"
+#include "libcassava/system.h"
 
 static int remove_files(NodeStr *head, int quiet);
 static int add_package(const char *pkg_name, Arguments *arg);

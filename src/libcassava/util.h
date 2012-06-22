@@ -22,17 +22,16 @@
  * Various utility functions that make use of libcassava.
  *
  * In order to use this header file, your library must have the ceil() function
- * available. In some systems, you need the \a libm math library.
+ * available. On some systems, you need the \a libm math library.
  *
  * \author Ben Morgan
- * \date 28. May 2012
+ * \date 1. June 2012
  */
 
 #ifndef LIBCASSAVA_UTIL_H
 #define LIBCASSAVA_UTIL_H
 
-#include "list_str.h"
-#include <sys/types.h>
+#include <stdlib.h>
 
 /** Define the width separating two columns for the function print_columns(). */
 #define PRINT_COLUMNS_SEP_WIDTH 2
