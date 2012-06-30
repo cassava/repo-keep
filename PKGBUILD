@@ -1,6 +1,6 @@
 # Maintainer: Ben Morgan <neembi@googlemail.com>
 pkgname=repo-keep
-pkgver=2.0.0
+pkgver=2.0.1
 pkgrel=1
 pkgdesc="A supplement to repo-add and repo-remove which simplifies managing local repositories"
 arch=('i686 x86_64')

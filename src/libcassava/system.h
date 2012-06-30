@@ -22,7 +22,7 @@
  * Functions that are pertinent to the system and the filesystem.
  *
  * \author Ben Morgan
- * \date 28. May 2012
+ * \date 29. June 2012
  */
 
 #ifndef LIBCASSAVA_SYSTEM_H
@@ -46,6 +46,60 @@
  * \return Number of columns in current terminal.
  */
 extern unsigned short get_terminal_columns();
+
+/**
+ * \brief
+ * Returns a pointer to an internal character buffer which contents correspond
+ * to the basename of the given path.
+ *
+ * \warning If you want the result to remain after successive calls to
+ * cs_basename(), then please copy it into a new string.
+ *
+ * \details
+ * The  functions  dirname() and basename() break a null-terminated pathname
+ * string into directory and filename components.  In the usual case, dirname()
+ * returns the string up to, but not including, the final '/', and basename()
+ * returns the component following  the  final '/'.  Trailing '/' characters
+ * are not counted as part of the pathname.
+ *
+ * If  path  does  not  contain a slash, dirname() returns the string "." while
+ * basename() returns a copy of path.  If path is the string "/", then both
+ * dirname() and basename() return the string "/".  If path is a NULL pointer
+ * or points to  an  empty  string,  then  both dirname() and basename() return
+ * the string ".".
+ *
+ * Concatenating the string returned by dirname(), a "/", and the string
+ * returned by basename() yields a complete pathname.
+ *
+ * The following list of examples (taken from SUSv2) shows the strings returned
+ * by dirname() and basename() for different paths:
+ *
+ *     path         dirname    basename
+ *     "/usr/lib"    "/usr"    "lib"
+ *     "/usr/"       "/"       "usr"
+ *     "usr"         "."       "usr"
+ *     "/"           "/"       "/"
+ *     "."           "."       "."
+ *     ".."          "."       ".."
+ *
+ * \note This is a wrapper of the standard basename and dirname functions given
+ * in the basename(3) and dirname(3) man page. The reason is that the library
+ * versions of basename and dirname are unpredictable in their behavior, which
+ * makes it inconvenient to use them.
+ */
+extern const char *cs_basename(const char *path);
+
+/**
+ * \brief
+ * Returns a pointer to an internal character buffer which contents correspond
+ * to the dirname of the given path.
+ *
+ * \warning If you want the result to remain after successive calls to
+ * cs_dirname(), then please copy it into a new string.
+ *
+ * \details \copydetails basename()
+ */
+extern const char *cs_dirname(const char *path);
 
 extern int read_directory(const char *path, NodeStr **head, bool full_pathnames);
 

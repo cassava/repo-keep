@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "libcassava/config_kv.h"
 #include "libcassava/string.h"
@@ -57,7 +58,8 @@ static char doc[] =
 static struct argp_option options[] = {
   // long           key  arg       ?  description
     {"soft",        's', NULL,     0, "Don't delete any files (n/a for: sync)", 0},
-    {"quiet",       'q', NULL,     0, "Don't confirm file deletion, just do it.", 0},
+    {"noconfirm",   'n', NULL,     0, "Don't confirm file deletion", 0},
+    {"verbose",     'v', NULL,     0, "Be loud and verbose", 0},
     {"config",      'c', "CONFIG", 0, "Alternate configuration file", 1},
     { 0, 0, NULL, 0, NULL, 0}
 };
@@ -76,10 +78,13 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
     switch(key) {
         case 's': // soft
-            arguments->soft = 1;
+            arguments->soft = true;
             break;
-        case 'q':
-            arguments->quiet = 1;
+        case 'n':
+            arguments->noconfirm = true;
+            break;
+        case 'v':
+            arguments->verbose = true;
             break;
         case 'c': // alternative config
             arguments->config = arg;
@@ -136,7 +141,7 @@ static void load_config(struct arguments *arguments, char *default_config)
     size_t len;
 
     // read the configuration file
-    printf("Using configuration file: %s\n", arguments->config);
+    if (arguments->verbose) printf("Using configuration file: %s\n", arguments->config);
     ret = config_parse(arguments->config, configuration, CONFIG_FAIL);
     for (i = 0; i < CONFIG_LEN; i++)
         if (configuration[i].value == NULL) {
@@ -154,7 +159,7 @@ static void load_config(struct arguments *arguments, char *default_config)
     }
 
     arguments->db_dir = configuration[0].value;
-    /* check that arguments->db_dir ends with a / character */
+    /* Guarantee that arguments->db_dir ends with a / character */
     len = strlen(arguments->db_dir);
     if (arguments->db_dir[len-1] != '/') {
         char *ptr = malloc((len+2) * sizeof (char));
@@ -176,19 +181,22 @@ int main(int argc, char **argv)
     char *default_config = tildestr(CONFIG_PATH);
     int retval = OK;
 
+    debug_puts("debugging is enabled.");
+
     // set default values
-    debug_puts("Debugging is enabled.");
-    arguments.soft = 0;
-    arguments.quiet = 0;
+    arguments.soft = false;
+    arguments.noconfirm = false;
+    arguments.verbose = false;
     arguments.config = default_config;
     arguments.command = action_nop;
 
     // parse the command line arguments and load config file
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
     load_config(&arguments, default_config);
-    printf("Using database: %s\n", arguments.db_path);
+    if (arguments.verbose) printf("Using database: %s\n", arguments.db_path);
 
     // perform the given action by switching on first character
+    chdir(arguments.db_dir);
     switch (arguments.command) {
         case action_add:
             retval |= repo_add(&arguments);

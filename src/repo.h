@@ -19,11 +19,13 @@
 #ifndef REPO_H
 #define REPO_H
 
+#include <stdbool.h>
+
 /* get rid of assert or debug_* statements */
 #define NDEBUG
 
-#define REPO_VERSION    "2.0.0"
-#define REPO_DATE       "22. June 2012"
+#define REPO_VERSION    "2.0.1"
+#define REPO_DATE       "30. June 2012"
 #define REPO_VERSION_STRING "repo " REPO_VERSION "  (" REPO_DATE ")"
 
 #define OK            0
@@ -57,8 +59,9 @@ typedef enum action_command {
 } Action;
 
 typedef struct arguments {
-    int soft;               // don't delete files
-    int quiet;              // don't ask before doing something
+    bool soft;              // don't delete files
+    bool noconfirm;         // don't ask before doing something
+    bool verbose;           // be loud and verbose
     char *config;           // configuration file where next two values are stored
     char *db_name;          // config::database name
     char *db_dir;           // config::path to db location (with packages)

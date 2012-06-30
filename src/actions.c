@@ -41,18 +41,26 @@
 #include "libcassava/util.h"
 #include "libcassava/system.h"
 
-static int remove_files(NodeStr *head, int quiet);
+#ifdef NDEBUG
+#define STRINGIFY_LEVEL1_(str) #str
+#define STRINGIFY_LEVEL0_(str) STRINGIFY_LEVEL1_(str)
+#define DEBUG_FILENO_ __FILE__ " (" STRINGIFY_LEVEL0_(__LINE__) "): "
+#endif
+
+static int remove_files(NodeStr *head, bool noconfirm);
 static int add_package(const char *pkg_name, Arguments *arg);
-static int exec_system(const char *command);
+static int exec_system(const char *command, bool verbose);
 static char *pkg_name(const char *input);
 static bool repo_check(Arguments *arg);
 static bool file_readable(const char *file);
-static bool confirm(const char *question, int def, int quiet);
+static bool confirm(const char *question, int def, bool noconfirm);
 
 /* ------------------------------------------------------------------------- */
 
 int repo_list(Arguments *arg)
 {
+    debug_puts("repo_list()");
+
     /* check prerequisites */
     if (!repo_check(arg))
         return ERR_SYSTEM;
@@ -85,6 +93,8 @@ int repo_list(Arguments *arg)
 
 int repo_add(Arguments *arg)
 {
+    debug_puts("repo_add()");
+
     int retval = OK;
 
     /* check prerequisites */
@@ -101,6 +111,8 @@ int repo_add(Arguments *arg)
 
 int repo_remove(Arguments *arg)
 {
+    debug_puts("repo_remove()");
+
     char *cmd, *argstr;
     int retval = OK;
 
@@ -126,14 +138,14 @@ int repo_remove(Arguments *arg)
             return retval;
         }
 
-        remove_files(head, arg->quiet);
+        remove_files(head, arg->noconfirm);
         list_free_all(&head);
     }
 
     /* remove entry from database */
     argstr = cs_strjoin(arg->argv, arg->argc, " ", 0);
     cmd = cs_strvcat(SYSTEM_REPO_REMOVE, " ", arg->db_path, " ", argstr, NULL);
-    retval |= exec_system(cmd);
+    retval |= exec_system(cmd, arg->verbose);
 
     free(cmd);
     free(argstr);
@@ -145,6 +157,8 @@ int repo_remove(Arguments *arg)
 
 int repo_update(Arguments *arg)
 {
+    debug_puts("repo_update()");
+
     time_t db_time;
     int retval = OK;
     NodeStr *head;
@@ -156,19 +170,21 @@ int repo_update(Arguments *arg)
     /* get age of database */
     struct stat statbuf;
     if (stat(arg->db_path, &statbuf) == -1) {
-        perror("Error (stat)");
+        char *errmsg = cs_strvcat("Error: ", DEBUG_FILENO_, "stat '", arg->db_path, "'", NULL);
+        perror(errmsg);
+        free(errmsg);
         goto error;
     }
     db_time = statbuf.st_mtime;
 
     /* get all files younger than db_time */
     struct filter_time_args args = { db_time, 1 };
-    retval = get_filepaths_filter(arg->db_dir, &head, filter_mtime, (void *)&args);
+    retval = get_filenames_filter(".", &head, filter_mtime, (void *)&args);
     if (retval == -1)
         goto error;
 
     /* filter all files out that are not packages */
-    char *pkgregex = cs_strvcat("^", arg->db_dir, PKG_NAME PKG_EXT, NULL);
+    char *pkgregex = cs_strvcat("^", PKG_NAME PKG_EXT, NULL);
     retval = list_filter_regex(&head, pkgregex);
     free(pkgregex);
     if (retval == -1) {
@@ -193,32 +209,29 @@ int repo_update(Arguments *arg)
              * we need to delete it ourselves.
              */
             if (list_search(short_head, name) == NULL) {
-                debug_printf("debug: pushing name %s\n", name);
                 list_push(&short_head, name);
                 add_package(name, arg);
             } else {
-                debug_printf("debug: freeing name %s\n", name);
                 free(name);
             }
         }
-        debug(list_print(short_head, " "), printf("\n"));
     }
 
     /* free list and return */
-    debug(list_print(short_head, " "), printf("\n"));
-    debug(list_print(head, " "), printf("\n"));
     list_free_all(&short_head);
     list_free_all(&head);
     return OK;
 
 error:
-    fprintf(stderr, "Error (update.c): cannot continue, exiting.\n");
+    fprintf(stderr, "Fatal Error: " DEBUG_FILENO_ "cannot continue, exiting.\n");
     return ERR_UNDEF;
 }
 
 
 int repo_sync(Arguments *arg)
 {
+    debug_puts("repo_sync()");
+
     /* check prerequisites */
     if (!repo_check(arg))
         return ERR_SYSTEM;
@@ -235,6 +248,8 @@ int repo_sync(Arguments *arg)
  */
 static bool repo_check(Arguments *arg)
 {
+    debug_puts("repo_check()");
+
     if (!file_readable(arg->db_path)) {
         fprintf(stderr, "Error: cannot open database '%s'\n", arg->db_path);
         return false;
@@ -245,20 +260,24 @@ static bool repo_check(Arguments *arg)
 
 /*
  * add_package: add a single package to the database.
+ *
+ * \warning we are assuming that we are in the directory arg->db_dir.
  */
 static int add_package(const char *pkg_name, Arguments *arg)
 {
+    debug_printf("add_package(%s)\n", pkg_name);
+
     int retval = OK;
     NodeStr *head;
 
     char *regex = cs_strvcat("^(", pkg_name, ")", PKG_EXT, NULL);
-    int count = get_filenames_filter_regex(arg->db_dir, &head, regex);
+    int count = get_filenames_filter_regex(".", &head, regex);
     free(regex);
 
     /* test age of file */
     if (count > 0) {
         char *cmd, *filename;
-        time_t filetime = 0; // TODO: check if this is right
+        time_t filetime = 0;
 
         printf("Found %d files for: %s\n", count, pkg_name);
 
@@ -268,7 +287,9 @@ static int add_package(const char *pkg_name, Arguments *arg)
             struct stat statbuf;
 
             if (stat(iter->data, &statbuf) == -1) {
-                perror("Error (stat)");
+                char *errmsg = cs_strvcat("Error: ", DEBUG_FILENO_, "stat '", iter->data, "'", NULL);
+                perror(errmsg);
+                free(errmsg);
                 retval |= ERR_MINOR;
                 continue;
             }
@@ -292,12 +313,12 @@ static int add_package(const char *pkg_name, Arguments *arg)
             }
 
             printf("Keeping: %s\n", filename);
-            remove_files(oldest, arg->quiet);
+            remove_files(oldest, arg->noconfirm);
             list_free_nodes(&oldest);
         }
 
         cmd = cs_strvcat(SYSTEM_REPO_ADD, " ", arg->db_path, " ", filename, NULL);
-        retval |= exec_system(cmd);
+        retval |= exec_system(cmd, arg->verbose);
         free(cmd);
     } else {
         fprintf(stderr, "Error: did not find any files to add.\n");
@@ -312,8 +333,10 @@ static int add_package(const char *pkg_name, Arguments *arg)
 /*
  * remove_files: confirm the removal of list of files, and remove them.
  */
-static int remove_files(NodeStr *head, int quiet)
+static int remove_files(NodeStr *head, bool noconfirm)
 {
+    debug_puts("remove_files()");
+
     NodeStr *names, *iter;
     char *args, *mesg;
     int retval = OK;
@@ -331,11 +354,13 @@ static int remove_files(NodeStr *head, int quiet)
     list_free_nodes(&names);
 
     /* ask if user wants to delete all the files and do it */
-    if (confirm(mesg, 1, quiet)) {
+    if (confirm(mesg, 1, noconfirm)) {
         for (iter = head; iter != NULL; iter = iter->next) {
             printf("Removing file: %s\n", iter->data);
             if (remove(iter->data) != 0) {
-                perror("Error (remove)");
+                char *errmsg = cs_strvcat("Error: ", DEBUG_FILENO_, "remove '", iter->data, "'", NULL);
+                perror(errmsg);
+                free(errmsg);
                 retval |= ERR_MINOR;
             }
         }
@@ -351,6 +376,8 @@ static int remove_files(NodeStr *head, int quiet)
  */
 static char *pkg_name(const char *input)
 {
+    debug_puts("pkg_name()");
+
     const char *regex = "^(/.*/)?(" PKG_NAME ")" PKG_EXT;
     char errbuf[BUFSIZ];      /* for holding error messages by regex.h */
     int errcode;
@@ -360,7 +387,7 @@ static char *pkg_name(const char *input)
     errcode = regcomp(&preg, regex, REG_EXTENDED);
     if (errcode != 0) {
         regerror(errcode, &preg, errbuf, sizeof errbuf);
-        fprintf(stderr, "Error (regcomp): %s\n", errbuf);
+        fprintf(stderr, "Error: " DEBUG_FILENO_ "regcomp: %s\n", errbuf);
         return NULL;
     }
 
@@ -373,7 +400,7 @@ static char *pkg_name(const char *input)
         goto end;
     } else {
         regerror(errcode, &preg, errbuf, sizeof errbuf);
-        fprintf(stderr, "Error (regexec): %s\n", errbuf);
+        fprintf(stderr, "Error: " DEBUG_FILENO_ "regexec: %s\n", errbuf);
         goto end;
     }
 
@@ -388,6 +415,7 @@ end:
  */
 static bool file_readable(const char *file)
 {
+    debug_printf("file_readble(%s)\n", file);
     FILE *in = fopen(file, "r");
     if (in == NULL)
         return false;
@@ -398,15 +426,16 @@ static bool file_readable(const char *file)
 
 /*
  * confirm: ask the user a question and get an answer.
- * If the parameter quiet is false, the question is actually asked, and on
+ * If the parameter noconfirm is false, the question is actually asked, and on
  * stderr. Otherwise, the default is accepted. (This is useful for documenting
- * what the system is doing if you used an option such as --quiet.)
+ * what the system is doing if you used an option such as --noconfirm.)
  */
-static bool confirm(const char *question, int def, int quiet)
+static bool confirm(const char *question, int def, bool noconfirm)
 {
+    debug_printf("confirm(%s)\n", question);
     char c = ' ';
 
-    if (quiet) {
+    if (noconfirm) {
         printf("%s [%s] .\n", question, def ? "Y/n" : "y/N");
     } else {
         fprintf(stderr, "%s [%s] ", question, def ? "Y/n" : "y/N");
@@ -439,10 +468,12 @@ static bool confirm(const char *question, int def, int quiet)
  *
  * @returns: OK or ERR_SYSTEM.
  */
-static int exec_system(const char *command) {
+static int exec_system(const char *command, bool verbose)
+{
+    debug_printf("exec_system(%s)\n", command);
     int retval;
 
-    printf("Running: %s\n", command);
+    if (verbose) printf("Running: %s\n", command);
     retval = system(command) == 0 ? OK : ERR_SYSTEM;
     return retval;
 }
