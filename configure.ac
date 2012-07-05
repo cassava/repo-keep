@@ -12,7 +12,7 @@ AM_INIT_AUTOMAKE(repo-keep, 1.9.4)
 AC_PROG_CC
 
 # Checks for header files.
-AC_CHECK_HEADERS([limits.h stdlib.h string.h math.h])
+AC_CHECK_HEADERS([limits.h stdlib.h string.h math.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
@@ -20,6 +20,9 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_CHECK_LIB(m, ceil)
+AC_CHECK_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_SIZE_T
 AC_CHECK_FUNCS([regcomp strchr strspn])
 
 # What we want to output
