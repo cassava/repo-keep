@@ -12,8 +12,10 @@ This changes with *repo-keep*, which I shall also from here on refer to as
 
 
 ### Features
-Writing is hard, so to save time here is the output of `repo --help`
-(and this way, you have already read it once -- double win!)
+Writing is hard, so to save time here is the (somewhat outdated) output of `repo --help`:
+
+    Usage: repo [OPTION...] <add|list|remove|update|sync> [PACKAGES ...]
+    Manage local pacman repositories.
 
     Commands available:
       add <pkgname>    Add the package(s) with <pkgname> to the database by
@@ -30,8 +32,9 @@ Writing is hard, so to save time here is the output of `repo --help`
     NOTE: In all of these cases, <pkgname> is the name of the package, without
     anything else. For example: pacman, and not pacman-3.5.3-1-i686.pkg.tar.xz
 
-      -q, --quiet                Don't confirm file deletion, just do it.
+      -n, --noconfirm            Don't confirm file deletion
       -s, --soft                 Don't delete any files (n/a for: sync)
+      -v, --verbose              Be loud and verbose
       -c, --config=CONFIG        Alternate configuration file
       -?, --help                 Give this help list
           --usage                Give a short usage message

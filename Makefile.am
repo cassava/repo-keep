@@ -6,6 +6,6 @@ EXTRA_DIST = \
     COPYING \
     NEWS \
     README \
-    PKGBUILD \
+    README.md \
     TODO
 

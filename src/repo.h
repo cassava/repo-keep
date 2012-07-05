@@ -24,8 +24,8 @@
 /* get rid of assert or debug_* statements */
 #define NDEBUG
 
-#define REPO_VERSION    "2.0.1"
-#define REPO_DATE       "30. June 2012"
+#define REPO_VERSION    "1.9.4"
+#define REPO_DATE       "5. July 2012"
 #define REPO_VERSION_STRING "repo " REPO_VERSION "  (" REPO_DATE ")"
 
 #define OK            0
