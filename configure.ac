@@ -19,7 +19,7 @@ AC_TYPE_SIZE_T
 
 # Checks for library functions.
 AC_FUNC_MALLOC
-AC_CHECK_LIB([m])
+AC_CHECK_LIB(m, ceil)
 AC_CHECK_FUNCS([regcomp strchr strspn])
 
 # What we want to output
