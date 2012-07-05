@@ -29,5 +29,3 @@ package() {
   install -m644 contrib/zsh_completion $pkgdir/usr/share/zsh/site-functions/_repo
 
 }
-
-md5sums=('5bae0ca91b72acab67bad217bf3154d7')
