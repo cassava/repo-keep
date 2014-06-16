@@ -1,4 +1,4 @@
-REPO-KEEP README
+DISCONTINUED: See repoctl
 ===============================================================================
 
 **repo-keep** is the successor to *repo-update*. repo-update was a supplement
